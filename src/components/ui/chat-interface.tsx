@@ -76,10 +76,10 @@ export default function ChatInterface() {
 
   return (
     <div className="flex flex-col h-full w-full max-h-[100dvh]">
-      {/* Header with model selector */}
+      {/* Header with model selector
       <div className="p-4 flex justify-end items-center border-b w-full shrink-0">
         <ModelSelector model={model} setModel={setModel} />
-      </div>
+      </div> */}
 
       {/* Chat messages */}
       <div className="flex-1 overflow-y-auto -webkit-overflow-scrolling-touch p-4 space-y-4 w-full">

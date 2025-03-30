@@ -43,7 +43,10 @@ export default function ChatInterface() {
 
   // Scroll to bottom whenever messages change or during streaming
   useEffect(() => {
-    scrollToBottom();
+    // Only scroll if we have messages or are in loading state
+    if (messages.length > 0 || isLoading) {
+      scrollToBottom();
+    }
   }, [messages, isLoading]);
 
   // Function to scroll to the bottom of the messages

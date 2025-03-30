@@ -65,21 +65,22 @@
   html,
   body {
     height: 100%;
-    overflow: hidden;
-    position: fixed;
     width: 100%;
     overscroll-behavior: none;
+  }
+
+  body {
+    position: relative;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   .ios-scroll-container {
     height: 100%;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    position: relative;
+    width: 100%;
   }
 }
 

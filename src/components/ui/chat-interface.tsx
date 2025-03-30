@@ -6,12 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Avatar } from "@/components/ui/avatar";
-import { ModelSelector } from "./model-selector";
 import Markdown from "markdown-to-jsx";
 import { User } from "@deemlol/next-icons"
 
 export default function ChatInterface() {
-  const [model, setModel] = useState("gpt-4o");
+  const model = "gpt-4o";
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const { messages, input, handleInputChange, handleSubmit, isLoading, error } =
@@ -77,10 +76,6 @@ export default function ChatInterface() {
 
   return (
     <div className="flex flex-col h-full w-full max-h-[100dvh]">
-      {/* Header with model selector
-      <div className="p-4 flex justify-end items-center border-b w-full shrink-0">
-        <ModelSelector model={model} setModel={setModel} />
-      </div> */}
 
       {/* Chat messages */}
       <div className="flex-1 overflow-y-auto -webkit-overflow-scrolling-touch p-4 space-y-4 w-full">

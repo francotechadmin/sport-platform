@@ -81,7 +81,7 @@ export function ActivityChart(props: ActivityChartProps) {
 
   // If we have a goal, add a horizontal line annotation
   if (goal) {
-    // @ts-ignore - the annotation plugin types are not fully compatible
+    // @ts-expect-error - the annotation plugin types are not fully compatible
     options.plugins.annotation = {
       annotations: {
         line1: {

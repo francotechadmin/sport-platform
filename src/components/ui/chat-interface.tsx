@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { useChat } from "@ai-sdk/react";
-import { openai } from "@ai-sdk/openai";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";

@@ -28,7 +28,7 @@ export function ModelSelector({ model, setModel }: ModelSelectorProps) {
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
-      <DropdownMenuTrigger asChild>
+      <DropdownMenuTrigger>
         <Button variant="outline" size="sm" className="h-8">
           <span className="text-xs font-medium">
             Model: {models.find((m) => m.id === model)?.name}

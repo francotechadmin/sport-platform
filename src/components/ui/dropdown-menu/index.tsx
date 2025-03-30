@@ -40,14 +40,12 @@ DropdownMenu.displayName = "DropdownMenu";
 
 interface DropdownMenuTriggerProps
   extends React.HTMLAttributes<HTMLDivElement> {
-  asChild?: boolean;
   children: React.ReactNode;
 }
 
 const DropdownMenuTrigger: React.FC<DropdownMenuTriggerProps> = ({
   children,
   className,
-  asChild = false,
   ...props
 }) => {
   const { open, onOpenChange } = React.useContext(DropdownMenuContext);

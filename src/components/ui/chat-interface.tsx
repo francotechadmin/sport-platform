@@ -163,7 +163,7 @@ export default function ChatInterface() {
       </div>
 
       {/* Message input */}
-      <div className="border-t p-4">
+      <div className="border-t p-4 pb-[calc(1rem+var(--sab))]">
         <form onSubmit={onSubmit} className="flex items-end gap-2">
           <Input
             className="flex-1 min-h-10 rounded-md"

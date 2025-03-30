@@ -18,7 +18,7 @@ export default function ChatPage() {
   ];
 
   return (
-    <div className="flex h-screen flex-col md:flex-row max-w-7xl w-full mx-auto">
+    <div className="flex h-[100dvh] flex-col md:flex-row max-w-7xl w-full mx-auto">
       {/* Mobile header */}
       <header className="border-b md:hidden w-full">
         <div className="flex items-center justify-between h-16 px-4">

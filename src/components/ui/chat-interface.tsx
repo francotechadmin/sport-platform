@@ -75,14 +75,14 @@ export default function ChatInterface() {
   };
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full w-full">
       {/* Header with model selector */}
-      <div className="p-4 flex justify-end items-center border-b">
+      <div className="p-4 flex justify-end items-center border-b w-full">
         <ModelSelector model={model} setModel={setModel} />
       </div>
 
       {/* Chat messages */}
-      <div className="flex-1 overflow-auto p-4 space-y-4">
+      <div className="flex-1 overflow-auto p-4 space-y-4 w-full">
         {messages.length === 0 && (
           <div className="flex items-center justify-center h-full text-gray-400">
             <p>No messages yet. Start a conversation!</p>
@@ -104,7 +104,7 @@ export default function ChatInterface() {
               </Avatar>
             )}
             <Card
-              className={`max-w-[80%] ${
+              className={`max-w-[90%] ${
                 message.role === "user"
                   ? "bg-primary text-primary-foreground"
                   : "bg-muted"
@@ -132,7 +132,7 @@ export default function ChatInterface() {
             </Card>
             {message.role === "user" && (
               <Avatar className="h-8 w-8">
-                <div className="bg-slate-300 flex h-full w-full items-center justify-center rounded-full text-xs">
+                <div className="bg-slate-300 dark:bg-slate-700 flex h-full w-full items-center justify-center rounded-full text-xs">
                   YOU
                 </div>
               </Avatar>
@@ -147,7 +147,7 @@ export default function ChatInterface() {
                 AI
               </div>
             </Avatar>
-            <Card className="max-w-[80%] bg-muted">
+            <Card className="max-w-[90%] bg-muted">
               <CardContent className="p-3">
                 <p className="animate-pulse">Thinking...</p>
               </CardContent>
@@ -156,7 +156,7 @@ export default function ChatInterface() {
         )}
 
         {error && (
-          <div className="rounded-md bg-red-50 p-4 text-red-700 text-sm">
+          <div className="rounded-md bg-red-50 dark:bg-red-900/20 p-4 text-red-700 dark:text-red-400 text-sm">
             Error: {error.message || "Something went wrong"}
           </div>
         )}
@@ -166,8 +166,8 @@ export default function ChatInterface() {
       </div>
 
       {/* Message input */}
-      <div className="border-t p-4 pb-[calc(1rem+var(--sab))]">
-        <form onSubmit={onSubmit} className="flex items-end gap-2">
+      <div className="border-t p-4 pb-[calc(1rem+var(--sab))] w-full">
+        <form onSubmit={onSubmit} className="flex items-end gap-2 w-full">
           <Input
             className="flex-1 min-h-10 rounded-md"
             placeholder="Type your message..."

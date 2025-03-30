@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import ChatInterface from "@/components/ui/chat-interface";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export default function ChatPage() {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
@@ -25,34 +26,37 @@ export default function ChatPage() {
           <Link href="/dashboard" className="font-bold text-lg">
             SportAI Chat
           </Link>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)}
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="h-6 w-6"
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)}
             >
-              <line x1="3" y1="12" x2="21" y2="12"></line>
-              <line x1="3" y1="6" x2="21" y2="6"></line>
-              <line x1="3" y1="18" x2="21" y2="18"></line>
-            </svg>
-          </Button>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="h-6 w-6"
+              >
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+              </svg>
+            </Button>
+          </div>
         </div>
       </header>
 
       {/* Mobile sidebar */}
       {mobileSidebarOpen && (
-        <div className="md:hidden border-b bg-slate-50 w-full">
+        <div className="md:hidden border-b bg-slate-50 dark:bg-slate-900 w-full">
           <div className="flex items-center justify-between px-4 py-2 border-b">
             <h2 className="text-sm font-medium">Recent Chats</h2>
             <Button variant="ghost" size="sm">
@@ -80,7 +84,7 @@ export default function ChatPage() {
                 <li key={convo.id}>
                   <Link
                     href={`/chat?id=${convo.id}`}
-                    className="flex flex-col rounded-lg p-3 hover:bg-slate-100"
+                    className="flex flex-col rounded-lg p-3 hover:bg-slate-100 dark:hover:bg-slate-800"
                     onClick={() => setMobileSidebarOpen(false)}
                   >
                     <span className="font-medium">{convo.title}</span>
@@ -105,10 +109,11 @@ export default function ChatPage() {
 
       {/* Desktop sidebar - Adjusted width for better proportions */}
       <aside className="hidden md:flex w-72 flex-col border-r shrink-0">
-        <div className="flex items-center h-16 px-4 border-b">
+        <div className="flex items-center justify-between h-16 px-4 border-b">
           <Link href="/dashboard" className="font-bold text-lg">
             SportAI Chat
           </Link>
+          <ThemeToggle />
         </div>
         <div className="flex items-center justify-between px-4 py-2 border-b">
           <h2 className="text-sm font-medium">Recent Chats</h2>
@@ -137,7 +142,7 @@ export default function ChatPage() {
               <li key={convo.id}>
                 <Link
                   href={`/chat?id=${convo.id}`}
-                  className="flex flex-col rounded-lg p-3 hover:bg-slate-100"
+                  className="flex flex-col rounded-lg p-3 hover:bg-slate-100 dark:hover:bg-slate-800"
                 >
                   <span className="font-medium">{convo.title}</span>
                   <span className="text-xs text-slate-500">{convo.date}</span>
@@ -155,11 +160,13 @@ export default function ChatPage() {
 
       {/* Main chat area with max-width for better readability */}
       <main
-        className={`flex-1 flex flex-col overflow-hidden ${
+        className={`flex-1 flex flex-col overflow-hidden w-full ${
           mobileSidebarOpen ? "hidden md:flex" : ""
         }`}
       >
-        <ChatInterface />
+        <div className="h-full w-full">
+          <ChatInterface />
+        </div>
       </main>
     </div>
   );

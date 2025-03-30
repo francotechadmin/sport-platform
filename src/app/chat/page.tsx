@@ -56,7 +56,7 @@ export default function ChatPage() {
 
       {/* Mobile sidebar */}
       {mobileSidebarOpen && (
-        <div className="md:hidden border-b bg-slate-50 dark:bg-slate-900 w-full">
+        <div className="md:hidden border-b bg-background w-full">
           <div className="flex items-center justify-between px-4 py-2 border-b">
             <h2 className="text-sm font-medium">Recent Chats</h2>
             <Button variant="ghost" size="sm">
@@ -84,7 +84,7 @@ export default function ChatPage() {
                 <li key={convo.id}>
                   <Link
                     href={`/chat?id=${convo.id}`}
-                    className="flex flex-col rounded-lg p-3 hover:bg-slate-100 dark:hover:bg-slate-800"
+                    className="flex flex-col rounded-lg p-3 hover:bg-slate-800 hover:text-white"
                     onClick={() => setMobileSidebarOpen(false)}
                   >
                     <span className="font-medium">{convo.title}</span>
@@ -142,7 +142,7 @@ export default function ChatPage() {
               <li key={convo.id}>
                 <Link
                   href={`/chat?id=${convo.id}`}
-                  className="flex flex-col rounded-lg p-3 hover:bg-slate-100 dark:hover:bg-slate-800"
+                  className="flex flex-col rounded-lg p-3 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-white"
                 >
                   <span className="font-medium">{convo.title}</span>
                   <span className="text-xs text-slate-500">{convo.date}</span>

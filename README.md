@@ -1,6 +1,15 @@
 # SportAI Chat
 
-A modern AI chat application designed specifically for athletes and sports enthusiasts, providing personalized training advice, performance insights, and sports-related information.
+A platform for athletes and sports enthusiasts.
+
+[![Website](https://img.shields.io/website?label=Visit%20Website&style=for-the-badge&url=https%3A%2F%2Fsport-platform.vercel.app%2F)](https://sport-platform.vercel.app/)
+[![Documentation](https://img.shields.io/badge/Explore%20Code-View%20Code-blue?style=for-the-badge)](https://github.com/francotechadmin/sport-platform)
+
+## Overview
+
+[![SportAI Chat](/public/app-sc.png)](https://sport-platform.vercel.app/)
+
+Sport AI is an application designed specifically for athletes and sports enthusiasts, providing personalized training advice, performance insights, and sports-related information.
 
 ## Features
 

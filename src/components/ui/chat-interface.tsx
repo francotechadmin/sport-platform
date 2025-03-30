@@ -75,14 +75,14 @@ export default function ChatInterface() {
   };
 
   return (
-    <div className="flex flex-col h-full w-full">
+    <div className="flex flex-col h-full w-full max-h-[100dvh]">
       {/* Header with model selector */}
-      <div className="p-4 flex justify-end items-center border-b w-full">
+      <div className="p-4 flex justify-end items-center border-b w-full shrink-0">
         <ModelSelector model={model} setModel={setModel} />
       </div>
 
       {/* Chat messages */}
-      <div className="flex-1 overflow-auto p-4 space-y-4 w-full">
+      <div className="flex-1 overflow-y-auto -webkit-overflow-scrolling-touch p-4 space-y-4 w-full">
         {messages.length === 0 && (
           <div className="flex items-center justify-center h-full text-gray-400">
             <p>No messages yet. Start a conversation!</p>
@@ -166,13 +166,17 @@ export default function ChatInterface() {
       </div>
 
       {/* Message input */}
-      <div className="border-t p-4 pb-[calc(1rem+var(--sab))] w-full">
+      <div className="border-t p-4 pb-[calc(1rem+var(--sab))] w-full shrink-0">
         <form onSubmit={onSubmit} className="flex items-end gap-2 w-full">
           <Input
-            className="flex-1 min-h-10 rounded-md"
+            className="flex-1 min-h-10 rounded-md text-base"
             placeholder="Type your message..."
             value={input}
             onChange={handleInputChange}
+            autoComplete="on"
+            autoCorrect="on"
+            spellCheck="true"
+            style={{ fontSize: "16px" }}
           />
           <Button type="submit" disabled={isLoading || !input.trim()}>
             <svg

@@ -19,7 +19,7 @@ export default function ChatPage() {
   ];
 
   return (
-    <div className="flex h-[100dvh] flex-col md:flex-row max-w-7xl w-full mx-auto">
+    <div className="flex h-[100dvh] flex-col md:flex-row max-w-7xl w-full mx-auto overflow-hidden fixed inset-0">
       {/* Mobile header */}
       <header className="border-b md:hidden w-full">
         <div className="flex items-center justify-between h-16 px-4">
@@ -164,7 +164,7 @@ export default function ChatPage() {
           mobileSidebarOpen ? "hidden md:flex" : ""
         }`}
       >
-        <div className="h-full w-full">
+        <div className="h-full w-full max-h-[100dvh]">
           <ChatInterface />
         </div>
       </main>

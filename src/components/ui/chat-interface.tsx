@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Avatar } from "@/components/ui/avatar";
 import { ModelSelector } from "./model-selector";
 import Markdown from "markdown-to-jsx";
+import { User } from "@deemlol/next-icons"
 
 export default function ChatInterface() {
   const [model, setModel] = useState("gpt-4o");
@@ -133,7 +134,7 @@ export default function ChatInterface() {
             {message.role === "user" && (
               <Avatar className="h-8 w-8">
                 <div className="bg-slate-300 dark:bg-slate-700 flex h-full w-full items-center justify-center rounded-full text-xs">
-                  YOU
+                  <User className="h-4 w-4 text-white" />
                 </div>
               </Avatar>
             )}

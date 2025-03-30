@@ -1,15 +1,17 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useChat } from "@ai-sdk/react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Avatar } from "@/components/ui/avatar";
 import { ModelSelector } from "./model-selector";
+import Markdown from "markdown-to-jsx";
 
 export default function ChatInterface() {
   const [model, setModel] = useState("gpt-4o");
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const { messages, input, handleInputChange, handleSubmit, isLoading, error } =
     useChat({
@@ -38,6 +40,16 @@ export default function ChatInterface() {
   useEffect(() => {
     console.log("Messages updated:", messages);
   }, [messages]);
+
+  // Scroll to bottom whenever messages change or during streaming
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, isLoading]);
+
+  // Function to scroll to the bottom of the messages
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
 
   // Log errors
   useEffect(() => {
@@ -96,14 +108,22 @@ export default function ChatInterface() {
               }`}
             >
               <CardContent className="p-3">
-                <div className="whitespace-pre-line">
+                <div className="prose prose-sm dark:prose-invert max-w-none">
                   {message.parts?.map((part, i) => {
                     if (part.type === "text") {
-                      return <div key={`${message.id}-${i}`}>{part.text}</div>;
+                      return (
+                        <Markdown key={`${message.id}-${i}`}>
+                          {part.text}
+                        </Markdown>
+                      );
                     }
                     return null;
                   }) ||
-                    (message.content ? message.content : "[Empty response]")}
+                    (message.content ? (
+                      <Markdown>{message.content}</Markdown>
+                    ) : (
+                      "[Empty response]"
+                    ))}
                 </div>
               </CardContent>
             </Card>
@@ -137,6 +157,9 @@ export default function ChatInterface() {
             Error: {error.message || "Something went wrong"}
           </div>
         )}
+
+        {/* This empty div is used as a reference for scrolling to the bottom */}
+        <div ref={messagesEndRef} />
       </div>
 
       {/* Message input */}

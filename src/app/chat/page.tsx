@@ -95,14 +95,14 @@ export default function ChatPage() {
             </ul>
           </nav>
           <div className="p-4 border-t">
-            <Button variant="outline" asChild className="w-full">
-              <Link
-                href="/dashboard"
-                onClick={() => setMobileSidebarOpen(false)}
-              >
+            <Link
+              href="/dashboard"
+              onClick={() => setMobileSidebarOpen(false)}
+            >
+              <Button variant="outline" asChild className="w-full">
                 Dashboard
-              </Link>
-            </Button>
+              </Button>
+            </Link>
           </div>
         </div>
       )}
@@ -152,9 +152,9 @@ export default function ChatPage() {
           </ul>
         </nav>
         <div className="p-4 border-t">
-          <Button variant="outline" asChild className="w-full">
-            <Link href="/dashboard">Dashboard</Link>
-          </Button>
+            <Link href="/dashboard">
+              <Button variant="outline" asChild className="w-full">Dashboard</Button>
+            </Link>
         </div>
       </aside>
 

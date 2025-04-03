@@ -29,7 +29,7 @@ export async function POST(req: Request) {
     console.log("Creating stream with openai model: gpt-4o");
 
     const result = streamText({
-      model: openai("gpt-4o"),
+      model: openai("ft:gpt-4o-2024-08-06:humanityai:proform-reflection-v8-deepmode:BI73k4sj"),
       messages,
     });
 

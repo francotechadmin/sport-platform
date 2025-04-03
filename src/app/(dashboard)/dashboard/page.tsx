@@ -27,7 +27,19 @@ export default function DashboardPage() {
   const recoveryData = generateRecoveryData();
 
   return (
-    <div className="py-8 w-full">
+    <div className="w-full">
+
+      {/* Weekly Overview message from ai */} 
+      <div className="max-w-7xl mx-auto grid gap-6 md:grid-cols-2 lg:grid-cols-3 px-4">
+        <div className="bg-background/90 backdrop-blur-sm rounded-lg p-4">
+          <h2 className="text-lg font-semibold">Weekly Overview</h2>
+          <p className="text-sm text-muted-foreground">
+            You've been working hard this week! Keep up the good work and you'll see even better results.
+          </p>
+        </div>
+      </div>
+
+  
       <div className="max-w-7xl mx-auto grid gap-6 md:grid-cols-2 lg:grid-cols-3 px-4">
         <Card>
           <CardHeader>

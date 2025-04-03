@@ -179,7 +179,27 @@ export function Sidebar({ title = "ProFormAI" }: SidebarProps) {
         
         {/* Mobile close button - only visible on mobile */}
         <div className="p-4 border-b flex justify-between items-center md:hidden" style={{ backgroundColor: 'hsl(var(--background))' }}>
-          <span className="font-bold text-xl">{title}</span>
+          <div className="flex items-center gap-2">
+            {/* logos */}
+            {!isDarkTheme ? (
+              <Image 
+                src="/logo-black.png" 
+                alt="ProFormAI Logo" 
+                width={32} 
+                height={32} 
+                priority
+              />
+            ) : (
+              <Image 
+                src="/logo-white.png" 
+                alt="ProFormAI Logo" 
+                width={32} 
+                height={32}
+                priority
+              />
+            )}
+            <span className="font-bold text-xl">{title}</span>
+          </div>
           <Button 
             variant="ghost" 
             size="icon" 

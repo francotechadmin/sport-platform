@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useTheme } from "@/components/theme-provider";
 import Image from "next/image";
-
+import { LogOut } from "@deemlol/next-icons";
 interface SidebarProps {
   title?: string;
 }
@@ -335,13 +335,17 @@ export function Sidebar({ title = "ProFormAI" }: SidebarProps) {
           )}
         </nav>
 
+        <div className="flex items-center justify-between mx-auto">
+          <ThemeToggle />
+        </div>
+
         <div
           className="p-4 border-t border-slate-200/10 dark:border-slate-700/30 flex flex-col gap-2"
           style={{ backgroundColor: "hsl(var(--background))" }}
         >
-          <ThemeToggle />
-          <Button variant="outline" asChild className="w-full">
+          <Button variant="outline" asChild className="w-full text-sm flex items-center gap-2">
             <Link href="/signin">Sign Out</Link>
+            <LogOut className="h-4 w-4" />
           </Button>
         </div>
       </div>

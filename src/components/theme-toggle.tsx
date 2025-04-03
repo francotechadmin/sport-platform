@@ -9,16 +9,16 @@ export function ThemeToggle() {
   return (
     <Button
       variant="ghost"
-      size="icon"
       onClick={() => setTheme(theme === "light" ? "dark" : "light")}
       title={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
+      className="flex items-center gap-2 hover:cursor-pointer"
     >
+      <span>Toggle theme</span>
       {theme === "light" ? (
         <MoonIcon className="h-5 w-5" />
       ) : (
         <SunIcon className="h-5 w-5" />
       )}
-      <span className="sr-only">Toggle theme</span>
     </Button>
   );
 }

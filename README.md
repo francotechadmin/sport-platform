@@ -1,4 +1,4 @@
-# ProFormAI Chat
+# ProFormAi Chat
 
 A platform for athletes and sports enthusiasts.
 
@@ -7,7 +7,7 @@ A platform for athletes and sports enthusiasts.
 
 ## Overview
 
-[![ProFormAI Chat](/public/app-sc.png)](https://sport-platform.vercel.app/)
+[![ProFormAi Chat](/public/app-sc.png)](https://sport-platform.vercel.app/)
 
 ProForm Ai is an application designed specifically for athletes and sports enthusiasts, providing personalized training advice, performance insights, and sports-related information.
 

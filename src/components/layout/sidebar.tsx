@@ -12,7 +12,7 @@ interface SidebarProps {
   title?: string;
 }
 
-export function Sidebar({ title = "ProFormAI" }: SidebarProps) {
+export function Sidebar({ title = "ProFormAi" }: SidebarProps) {
   const pathname = usePathname();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const { theme } = useTheme();
@@ -27,7 +27,7 @@ export function Sidebar({ title = "ProFormAI" }: SidebarProps) {
         setIsDarkTheme(false);
       } else if (theme === "system") {
         setIsDarkTheme(
-          window.matchMedia("(prefers-color-scheme: dark)").matches,
+          window.matchMedia("(prefers-color-scheme: dark)").matches
         );
       }
     };
@@ -91,7 +91,7 @@ export function Sidebar({ title = "ProFormAI" }: SidebarProps) {
             {!isDarkTheme ? (
               <Image
                 src="/logo-black.png"
-                alt="ProFormAI Logo"
+                alt="ProFormAi Logo"
                 width={32}
                 height={32}
                 priority
@@ -99,7 +99,7 @@ export function Sidebar({ title = "ProFormAI" }: SidebarProps) {
             ) : (
               <Image
                 src="/logo-white.png"
-                alt="ProFormAI Logo"
+                alt="ProFormAi Logo"
                 width={32}
                 height={32}
                 priority
@@ -169,7 +169,7 @@ export function Sidebar({ title = "ProFormAI" }: SidebarProps) {
             {!isDarkTheme ? (
               <Image
                 src="/logo-black.png"
-                alt="ProFormAI Logo"
+                alt="ProFormAi Logo"
                 width={32}
                 height={32}
                 priority
@@ -177,7 +177,7 @@ export function Sidebar({ title = "ProFormAI" }: SidebarProps) {
             ) : (
               <Image
                 src="/logo-white.png"
-                alt="ProFormAI Logo"
+                alt="ProFormAi Logo"
                 width={32}
                 height={32}
                 priority
@@ -198,7 +198,7 @@ export function Sidebar({ title = "ProFormAI" }: SidebarProps) {
             {!isDarkTheme ? (
               <Image
                 src="/logo-black.png"
-                alt="ProFormAI Logo"
+                alt="ProFormAi Logo"
                 width={32}
                 height={32}
                 priority
@@ -206,7 +206,7 @@ export function Sidebar({ title = "ProFormAI" }: SidebarProps) {
             ) : (
               <Image
                 src="/logo-white.png"
-                alt="ProFormAI Logo"
+                alt="ProFormAi Logo"
                 width={32}
                 height={32}
                 priority
@@ -343,7 +343,11 @@ export function Sidebar({ title = "ProFormAI" }: SidebarProps) {
           className="p-4 border-t border-slate-200/10 dark:border-slate-700/30 flex flex-col gap-2"
           style={{ backgroundColor: "hsl(var(--background))" }}
         >
-          <Button variant="outline" asChild className="w-full text-sm flex items-center gap-2 border-slate-200/10 dark:border-slate-700/30">
+          <Button
+            variant="outline"
+            asChild
+            className="w-full text-sm flex items-center gap-2 border-slate-200/10 dark:border-slate-700/30"
+          >
             <Link href="/signin">Sign Out</Link>
             <LogOut className="h-4 w-4" />
           </Button>

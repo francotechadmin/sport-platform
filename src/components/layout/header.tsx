@@ -9,7 +9,7 @@ interface HeaderProps {
   title?: string;
 }
 
-export function Header({ title = "ProFormAI Chat" }: HeaderProps) {
+export function Header({ title = "ProFormAi Chat" }: HeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (

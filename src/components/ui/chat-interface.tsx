@@ -76,7 +76,6 @@ export default function ChatInterface() {
 
   return (
     <div className="flex flex-col h-full w-full overflow-hidden">
-
       {/* Chat messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4 w-full">
         {messages.length === 0 && (
@@ -100,7 +99,7 @@ export default function ChatInterface() {
               </Avatar>
             )}
             <Card
-              className={`max-w-[90%] ${
+              className={`max-w-[80%] md:max-w-[90%] ${
                 message.role === "user"
                   ? "bg-primary text-primary-foreground"
                   : "bg-muted"
@@ -143,7 +142,7 @@ export default function ChatInterface() {
                 AI
               </div>
             </Avatar>
-            <Card className="max-w-[90%] bg-muted">
+            <Card className="max-w-[80%] md:max-w-[90%] bg-muted">
               <CardContent className="p-3">
                 <p className="animate-pulse">Thinking...</p>
               </CardContent>

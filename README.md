@@ -1,4 +1,4 @@
-# SportAI Chat
+# ProFormAI Chat
 
 A platform for athletes and sports enthusiasts.
 
@@ -7,9 +7,9 @@ A platform for athletes and sports enthusiasts.
 
 ## Overview
 
-[![SportAI Chat](/public/app-sc.png)](https://sport-platform.vercel.app/)
+[![ProFormAI Chat](/public/app-sc.png)](https://sport-platform.vercel.app/)
 
-Sport AI is an application designed specifically for athletes and sports enthusiasts, providing personalized training advice, performance insights, and sports-related information.
+ProForm Ai is an application designed specifically for athletes and sports enthusiasts, providing personalized training advice, performance insights, and sports-related information.
 
 ## Features
 
@@ -39,8 +39,8 @@ Sport AI is an application designed specifically for athletes and sports enthusi
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/yourusername/sportai-chat.git
-   cd sportai-chat
+   git clone https://github.com/yourusername/proformai-chat.git
+   cd proformai-chat
    ```
 
 2. Install dependencies:

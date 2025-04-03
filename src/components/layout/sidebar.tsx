@@ -10,7 +10,7 @@ interface SidebarProps {
   title?: string;
 }
 
-export function Sidebar({ title = "SportAI" }: SidebarProps) {
+export function Sidebar({ title = "ProFormAI" }: SidebarProps) {
   const pathname = usePathname();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   

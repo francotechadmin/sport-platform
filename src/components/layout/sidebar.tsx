@@ -16,6 +16,15 @@ export function Sidebar({ title = "SportAI" }: SidebarProps) {
     return pathname.startsWith(path);
   };
   
+  // Mock conversation history
+  const conversations = [
+    { id: 1, title: "Running Training Plan", date: "2 hours ago" },
+    { id: 2, title: "Swimming Technique Tips", date: "Yesterday" },
+    { id: 3, title: "Nutrition Advice", date: "3 days ago" },
+    { id: 4, title: "Recovery Strategies", date: "1 week ago" },
+    { id: 5, title: "Race Day Preparation", date: "2 weeks ago" },
+  ];
+  
   return (
     <div className="h-screen w-64 border-r flex flex-col">
       <div className="p-4 border-b">
@@ -53,6 +62,46 @@ export function Sidebar({ title = "SportAI" }: SidebarProps) {
           Chat
         </Link>
       </nav>
+      
+      {/* Chat History Section - Only shown when on chat page */}
+      {isActive("/chat") && (
+        <div className="flex-1 px-2 overflow-auto">
+          <div className="flex items-center justify-between px-2 py-2">
+            <h2 className="text-sm font-medium">Recent Chats</h2>
+            <Button variant="ghost" size="sm">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="h-4 w-4"
+              >
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+              <span className="ml-1 text-xs">New</span>
+            </Button>
+          </div>
+          <ul className="space-y-1">
+            {conversations.map((convo) => (
+              <li key={convo.id}>
+                <Link
+                  href={`/chat?id=${convo.id}`}
+                  className="flex flex-col rounded-lg p-2 text-sm hover:bg-muted"
+                >
+                  <span className="font-medium">{convo.title}</span>
+                  <span className="text-xs text-muted-foreground">{convo.date}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
       
       <div className="p-4 border-t flex flex-col gap-2">
         <ThemeToggle />

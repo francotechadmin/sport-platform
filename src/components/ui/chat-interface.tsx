@@ -75,10 +75,10 @@ export default function ChatInterface() {
   };
 
   return (
-    <div className="flex flex-col h-full w-full max-h-[100dvh]">
+    <div className="flex flex-col h-full w-full overflow-hidden">
 
       {/* Chat messages */}
-      <div className="flex-1 overflow-y-auto -webkit-overflow-scrolling-touch p-4 space-y-4 w-full">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 w-full">
         {messages.length === 0 && (
           <div className="flex items-center justify-center h-full text-gray-400">
             <p>No messages yet. Start a conversation!</p>
@@ -162,7 +162,7 @@ export default function ChatInterface() {
       </div>
 
       {/* Message input */}
-      <div className="border-t p-4 pb-[calc(1rem+var(--sab))] w-full shrink-0">
+      <div className="border-t p-4 w-full shrink-0">
         <form onSubmit={onSubmit} className="flex items-end gap-2 w-full">
           <Input
             className="flex-1 min-h-10 rounded-md text-base"

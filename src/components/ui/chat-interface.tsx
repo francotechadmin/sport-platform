@@ -92,17 +92,17 @@ export default function ChatInterface() {
             }`}
           >
             {message.role !== "user" && (
-              <Avatar className="h-8 w-8">
-                <div className="bg-primary text-primary-foreground flex h-full w-full items-center justify-center rounded-full text-xs">
+              <Avatar className="h-8 w-8 ring-1 ring-slate-200/20 dark:ring-slate-700/30">
+                <div className="bg-primary/90 text-primary-foreground flex h-full w-full items-center justify-center rounded-full text-xs shadow-sm">
                   AI
                 </div>
               </Avatar>
             )}
             <Card
-              className={`max-w-[80%] md:max-w-[90%] ${
+              className={`max-w-[80%] md:max-w-[90%] shadow-sm border-0 ${
                 message.role === "user"
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-muted"
+                  ? "bg-primary/90 text-primary-foreground"
+                  : "bg-muted/80 backdrop-blur-sm"
               }`}
             >
               <CardContent className="p-3">
@@ -126,8 +126,8 @@ export default function ChatInterface() {
               </CardContent>
             </Card>
             {message.role === "user" && (
-              <Avatar className="h-8 w-8">
-                <div className="bg-slate-300 dark:bg-slate-700 flex h-full w-full items-center justify-center rounded-full text-xs">
+              <Avatar className="h-8 w-8 ring-1 ring-slate-200/20 dark:ring-slate-700/30">
+                <div className="bg-slate-300/90 dark:bg-slate-700/90 flex h-full w-full items-center justify-center rounded-full text-xs shadow-sm">
                   <User className="h-4 w-4 text-white" />
                 </div>
               </Avatar>
@@ -137,12 +137,12 @@ export default function ChatInterface() {
 
         {isLoading && (
           <div className="flex items-center justify-start gap-3">
-            <Avatar className="h-8 w-8">
-              <div className="bg-primary text-primary-foreground flex h-full w-full items-center justify-center rounded-full text-xs">
+            <Avatar className="h-8 w-8 ring-1 ring-slate-200/20 dark:ring-slate-700/30">
+              <div className="bg-primary/90 text-primary-foreground flex h-full w-full items-center justify-center rounded-full text-xs shadow-sm">
                 AI
               </div>
             </Avatar>
-            <Card className="max-w-[80%] md:max-w-[90%] bg-muted">
+            <Card className="max-w-[80%] md:max-w-[90%] bg-muted/80 backdrop-blur-sm border-0 shadow-sm">
               <CardContent className="p-3">
                 <p className="animate-pulse">Thinking...</p>
               </CardContent>
@@ -151,7 +151,7 @@ export default function ChatInterface() {
         )}
 
         {error && (
-          <div className="rounded-md bg-red-50 dark:bg-red-900/20 p-4 text-red-700 dark:text-red-400 text-sm">
+          <div className="rounded-lg border border-red-200/30 dark:border-red-900/30 bg-red-50/90 dark:bg-red-900/20 p-4 text-red-700 dark:text-red-400 text-sm shadow-sm backdrop-blur-sm">
             Error: {error.message || "Something went wrong"}
           </div>
         )}
@@ -161,10 +161,10 @@ export default function ChatInterface() {
       </div>
 
       {/* Message input */}
-      <div className="border-t p-4 w-full shrink-0">
-        <form onSubmit={onSubmit} className="flex items-end gap-2 w-full">
+      <div className="border-t border-slate-200/10 dark:border-slate-700/30 bg-background/80 backdrop-blur-sm p-4 w-full shrink-0 shadow-sm">
+        <form onSubmit={onSubmit} className="flex items-end gap-2 w-full max-w-4xl mx-auto">
           <Input
-            className="flex-1 min-h-10 rounded-md text-base"
+            className="flex-1 min-h-10 rounded-lg border-slate-200/20 dark:border-slate-700/40 bg-background/90 backdrop-blur-sm shadow-sm focus-visible:ring-1 focus-visible:ring-slate-300/50 dark:focus-visible:ring-slate-700/50 text-base"
             placeholder="Type your message..."
             value={input}
             onChange={handleInputChange}
@@ -173,7 +173,11 @@ export default function ChatInterface() {
             spellCheck="true"
             style={{ fontSize: "16px" }}
           />
-          <Button type="submit" disabled={isLoading || !input.trim()}>
+          <Button 
+            type="submit" 
+            disabled={isLoading || !input.trim()} 
+            className="rounded-lg shadow-sm"
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="24"

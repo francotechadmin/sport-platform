@@ -80,7 +80,7 @@ export function Sidebar({ title = "ProFormAI" }: SidebarProps) {
     <>
       {/* Mobile Header */}
       <div
-        className="md:hidden fixed top-0 left-0 right-0 z-20 border-b bg-background"
+        className="md:hidden fixed top-0 left-0 right-0 z-20 border-b border-slate-200/10 dark:border-slate-700/30 shadow-sm bg-background/95 backdrop-blur-sm"
         style={{ backgroundColor: "hsl(var(--background))" }}
       >
         <div className="flex items-center justify-between p-4">
@@ -145,7 +145,7 @@ export function Sidebar({ title = "ProFormAI" }: SidebarProps) {
       {/* Mobile Overlay */}
       {isMobileOpen && (
         <div
-          className="md:hidden fixed inset-0 bg-black/50 z-30"
+          className="md:hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-30"
           onClick={() => setIsMobileOpen(false)}
         />
       )}
@@ -153,15 +153,15 @@ export function Sidebar({ title = "ProFormAI" }: SidebarProps) {
       {/* Sidebar */}
       <div
         className={`
-          fixed top-0 left-0 z-40 h-full w-64 border-r flex flex-col transform transition-transform duration-200 ease-in-out
-          md:translate-x-0 bg-background
+          fixed top-0 left-0 z-40 h-full w-64 border-r border-slate-200/10 dark:border-slate-700/30 shadow-sm flex flex-col transform transition-transform duration-200 ease-in-out
+          md:translate-x-0 bg-background/95 backdrop-blur-sm
           ${isMobileOpen ? "translate-x-0" : "-translate-x-full"}
           md:static md:z-0
         `}
         style={{ backgroundColor: "hsl(var(--background))" }}
       >
         {/* Desktop header - hidden on mobile */}
-        <div className="p-4 border-b hidden md:block">
+        <div className="p-4 border-b border-slate-200/10 dark:border-slate-700/30 hidden md:block">
           <Link
             href="/dashboard"
             className="font-bold text-xl flex items-center gap-2"
@@ -190,7 +190,7 @@ export function Sidebar({ title = "ProFormAI" }: SidebarProps) {
 
         {/* Mobile close button - only visible on mobile */}
         <div
-          className="p-4 border-b flex justify-between items-center md:hidden"
+          className="p-4 border-b border-slate-200/10 dark:border-slate-700/30 flex justify-between items-center md:hidden"
           style={{ backgroundColor: "hsl(var(--background))" }}
         >
           <div className="flex items-center gap-2">
@@ -244,10 +244,10 @@ export function Sidebar({ title = "ProFormAI" }: SidebarProps) {
         >
           <Link
             href="/dashboard"
-            className={`flex items-center px-3 py-2 rounded-md ${
+            className={`flex items-center px-3 py-2 rounded-lg transition-all duration-200 ${
               isActive("/dashboard")
-                ? "bg-primary text-primary-foreground"
-                : "hover:bg-muted"
+                ? "bg-primary/90 text-primary-foreground shadow-sm"
+                : "hover:bg-muted/70"
             }`}
           >
             <svg
@@ -269,10 +269,10 @@ export function Sidebar({ title = "ProFormAI" }: SidebarProps) {
 
           <Link
             href="/chat"
-            className={`flex items-center px-3 py-2 rounded-md ${
+            className={`flex items-center px-3 py-2 rounded-lg transition-all duration-200 ${
               isActive("/chat")
-                ? "bg-primary text-primary-foreground"
-                : "hover:bg-muted"
+                ? "bg-primary/90 text-primary-foreground shadow-sm"
+                : "hover:bg-muted/70"
             }`}
           >
             <svg
@@ -321,7 +321,7 @@ export function Sidebar({ title = "ProFormAI" }: SidebarProps) {
                   <li key={convo.id}>
                     <Link
                       href={`/chat?id=${convo.id}`}
-                      className="flex flex-col rounded-lg p-2 text-sm hover:bg-muted"
+                      className="flex flex-col rounded-lg p-2 text-sm hover:bg-muted/70 transition-colors duration-200"
                     >
                       <span className="font-medium">{convo.title}</span>
                       <span className="text-xs text-muted-foreground">
@@ -336,7 +336,7 @@ export function Sidebar({ title = "ProFormAI" }: SidebarProps) {
         </nav>
 
         <div
-          className="p-4 border-t flex flex-col gap-2"
+          className="p-4 border-t border-slate-200/10 dark:border-slate-700/30 flex flex-col gap-2"
           style={{ backgroundColor: "hsl(var(--background))" }}
         >
           <ThemeToggle />

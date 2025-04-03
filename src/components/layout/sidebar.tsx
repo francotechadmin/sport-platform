@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useTheme } from "@/components/theme-provider";
 import Image from "next/image";
-import { LogOut } from "@deemlol/next-icons";
+import { LogOut, Bell, MessageSquare, User } from "lucide-react";
+
 interface SidebarProps {
   title?: string;
 }
@@ -83,62 +84,78 @@ export function Sidebar({ title = "ProFormAi" }: SidebarProps) {
         className="md:hidden fixed top-0 left-0 right-0 z-20 border-b border-slate-200/10 dark:border-slate-700/30 shadow-sm bg-background/95 backdrop-blur-sm"
         style={{ backgroundColor: "hsl(var(--background))" }}
       >
-        <div className="flex items-center justify-between p-4">
-          <Link
-            href="/dashboard"
-            className="font-bold text-xl flex items-center gap-2"
-          >
-            {!isDarkTheme ? (
-              <Image
-                src="/logo-black.png"
-                alt="ProFormAi Logo"
-                width={32}
-                height={32}
-                priority
-              />
-            ) : (
-              <Image
-                src="/logo-white.png"
-                alt="ProFormAi Logo"
-                width={32}
-                height={32}
-                priority
-              />
-            )}
-            {title}
-          </Link>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setIsMobileOpen(!isMobileOpen)}
-            aria-label="Toggle menu"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="h-6 w-6"
+        <div className="flex flex-col">
+          <div className="flex items-center justify-between p-4">
+            <Link
+              href="/dashboard"
+              className="font-bold text-xl flex items-center gap-2"
             >
-              {isMobileOpen ? (
-                <>
-                  <line x1="18" y1="6" x2="6" y2="18"></line>
-                  <line x1="6" y1="6" x2="18" y2="18"></line>
-                </>
+              {!isDarkTheme ? (
+                <Image
+                  src="/logo-black.png"
+                  alt="ProFormAi Logo"
+                  width={32}
+                  height={32}
+                  priority
+                />
               ) : (
-                <>
-                  <line x1="3" y1="12" x2="21" y2="12"></line>
-                  <line x1="3" y1="6" x2="21" y2="6"></line>
-                  <line x1="3" y1="18" x2="21" y2="18"></line>
-                </>
+                <Image
+                  src="/logo-white.png"
+                  alt="ProFormAi Logo"
+                  width={32}
+                  height={32}
+                  priority
+                />
               )}
-            </svg>
-          </Button>
+              {title}
+            </Link>
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" size="icon" className="relative">
+                <Bell className="h-5 w-5" />
+                <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center">
+                  3
+                </span>
+              </Button>
+              <Button variant="ghost" size="icon" className="relative">
+                <MessageSquare className="h-5 w-5" />
+                <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center">
+                  2
+                </span>
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setIsMobileOpen(!isMobileOpen)}
+                aria-label="Toggle menu"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="h-6 w-6"
+                >
+                  {isMobileOpen ? (
+                    <>
+                      <line x1="18" y1="6" x2="6" y2="18"></line>
+                      <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </>
+                  ) : (
+                    <>
+                      <line x1="3" y1="12" x2="21" y2="12"></line>
+                      <line x1="3" y1="6" x2="21" y2="6"></line>
+                      <line x1="3" y1="18" x2="21" y2="18"></line>
+                    </>
+                  )}
+                </svg>
+              </Button>
+            </div>
+          </div>
         </div>
       </div>
 

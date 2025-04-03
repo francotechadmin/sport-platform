@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ProFormAI Chat - AI Assistant for Athletes",
+  title: "ProFormAi Chat - AI Assistant for Athletes",
   description: "Chat with AI to improve your sport performance and training",
 };
 

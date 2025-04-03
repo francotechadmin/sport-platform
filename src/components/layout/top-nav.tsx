@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Bell, MessageSquare, User } from "lucide-react";
+import { Bell, MessageSquare, User } from "@deemlol/next-icons";
 
 export function TopNav() {
 

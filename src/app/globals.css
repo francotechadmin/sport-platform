@@ -91,3 +91,23 @@ body {
   /* Add padding to account for safe area at the bottom */
   padding-bottom: var(--sab);
 }
+
+/* Debug styles for theme detection */
+.debug-theme {
+  position: fixed;
+  bottom: 8px;
+  right: 8px;
+  padding: 8px;
+  background-color: white;
+  color: black;
+  border: 1px solid black;
+  border-radius: 4px;
+  z-index: 9999;
+  font-size: 12px;
+}
+
+.dark .debug-theme {
+  background-color: black;
+  color: white;
+  border-color: white;
+}

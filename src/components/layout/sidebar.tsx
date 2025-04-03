@@ -5,6 +5,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { useTheme } from "@/components/theme-provider";
+import Image from "next/image";
 
 interface SidebarProps {
   title?: string;
@@ -13,6 +15,34 @@ interface SidebarProps {
 export function Sidebar({ title = "ProFormAI" }: SidebarProps) {
   const pathname = usePathname();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const { theme } = useTheme();
+  const [isDarkTheme, setIsDarkTheme] = useState(false);
+  
+  // Set initial dark theme state
+  useEffect(() => {
+    const updateTheme = () => {
+      if (theme === 'dark') {
+        setIsDarkTheme(true);
+      } else if (theme === 'light') {
+        setIsDarkTheme(false);
+      } else if (theme === 'system') {
+        setIsDarkTheme(window.matchMedia('(prefers-color-scheme: dark)').matches);
+      }
+    };
+    
+    updateTheme();
+    
+    // Listen for system preference changes
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleChange = () => {
+      if (theme === 'system') {
+        setIsDarkTheme(mediaQuery.matches);
+      }
+    };
+    
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, [theme]);
   
   // Close sidebar when pathname changes (navigation occurs)
   useEffect(() => {
@@ -49,7 +79,24 @@ export function Sidebar({ title = "ProFormAI" }: SidebarProps) {
       {/* Mobile Header */}
       <div className="md:hidden fixed top-0 left-0 right-0 z-20 border-b bg-background" style={{ backgroundColor: 'hsl(var(--background))' }}>
         <div className="flex items-center justify-between p-4">
-          <Link href="/dashboard" className="font-bold text-xl">
+          <Link href="/dashboard" className="font-bold text-xl flex items-center gap-2">
+            {!isDarkTheme ? (
+              <Image 
+                src="/logo-black.png" 
+                alt="ProFormAI Logo" 
+                width={32} 
+                height={32} 
+                priority
+              />
+            ) : (
+              <Image 
+                src="/logo-white.png" 
+                alt="ProFormAI Logo" 
+                width={32} 
+                height={32}
+                priority
+              />
+            )}
             {title}
           </Link>
           <Button 
@@ -107,7 +154,25 @@ export function Sidebar({ title = "ProFormAI" }: SidebarProps) {
       >
         {/* Desktop header - hidden on mobile */}
         <div className="p-4 border-b hidden md:block">
-          <Link href="/dashboard" className="font-bold text-xl">
+          <Link href="/dashboard" className="font-bold text-xl flex items-center gap-2">
+            {!isDarkTheme ? (
+              <Image 
+                src="/logo-black.png" 
+                alt="ProFormAI Logo" 
+                width={32} 
+                height={32} 
+                priority
+              />
+            ) : (
+              <Image 
+                src="/logo-white.png" 
+                alt="ProFormAI Logo" 
+                width={32} 
+                height={32}
+                priority
+              />
+            )}
+            
             {title}
           </Link>
         </div>

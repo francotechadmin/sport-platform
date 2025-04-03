@@ -47,7 +47,7 @@ export function Sidebar({ title = "SportAI" }: SidebarProps) {
   return (
     <>
       {/* Mobile Header */}
-      <div className="md:hidden fixed top-0 left-0 right-0 z-20 border-b bg-background">
+      <div className="md:hidden fixed top-0 left-0 right-0 z-20 border-b bg-background" style={{ backgroundColor: 'hsl(var(--background))' }}>
         <div className="flex items-center justify-between p-4">
           <Link href="/dashboard" className="font-bold text-xl">
             {title}
@@ -98,11 +98,12 @@ export function Sidebar({ title = "SportAI" }: SidebarProps) {
       {/* Sidebar */}
       <div 
         className={`
-          fixed top-0 left-0 z-40 h-full w-64 border-r bg-background flex flex-col transform transition-transform duration-200 ease-in-out
-          md:translate-x-0 
+          fixed top-0 left-0 z-40 h-full w-64 border-r flex flex-col transform transition-transform duration-200 ease-in-out
+          md:translate-x-0 bg-background
           ${isMobileOpen ? 'translate-x-0' : '-translate-x-full'}
           md:static md:z-0
         `}
+        style={{ backgroundColor: 'hsl(var(--background))' }}
       >
         {/* Desktop header - hidden on mobile */}
         <div className="p-4 border-b hidden md:block">
@@ -112,7 +113,7 @@ export function Sidebar({ title = "SportAI" }: SidebarProps) {
         </div>
         
         {/* Mobile close button - only visible on mobile */}
-        <div className="p-4 border-b flex justify-between items-center md:hidden">
+        <div className="p-4 border-b flex justify-between items-center md:hidden" style={{ backgroundColor: 'hsl(var(--background))' }}>
           <span className="font-bold text-xl">{title}</span>
           <Button 
             variant="ghost" 
@@ -138,7 +139,7 @@ export function Sidebar({ title = "SportAI" }: SidebarProps) {
           </Button>
         </div>
         
-        <nav className="flex-1 px-2 py-4 space-y-1 overflow-y-auto">
+        <nav className="flex-1 px-2 py-4 space-y-1 overflow-y-auto" style={{ backgroundColor: 'hsl(var(--background))' }}>
           <Link 
             href="/dashboard" 
             className={`flex items-center px-3 py-2 rounded-md ${
@@ -208,7 +209,7 @@ export function Sidebar({ title = "SportAI" }: SidebarProps) {
           )}
         </nav>
         
-        <div className="p-4 border-t flex flex-col gap-2">
+        <div className="p-4 border-t flex flex-col gap-2" style={{ backgroundColor: 'hsl(var(--background))' }}>
           <ThemeToggle />
           <Button variant="outline" asChild className="w-full">
             <Link href="/signin">Sign Out</Link>

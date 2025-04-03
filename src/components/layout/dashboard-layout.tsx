@@ -10,7 +10,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   return (
     <div className="flex h-screen overflow-hidden">
       <Sidebar />
-      <main className="flex-1 md:overflow-y-auto w-full">
+      <main className="flex-1 overflow-y-auto w-full">
         <div className="ios-scroll-container h-full pt-[60px] md:pt-0">
           {children}
         </div>

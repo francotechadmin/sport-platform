@@ -129,7 +129,7 @@ export default function ChatInterface() {
       inputRef.current?.removeEventListener('focus', handleFocus);
       inputRef.current?.removeEventListener('blur', handleBlur);
     };
-  }, [isIOS, isMobile, inputRef.current]);
+  }, [isIOS, isMobile]);
 
   // Log messages whenever they change
   useEffect(() => {
@@ -204,7 +204,7 @@ export default function ChatInterface() {
       >
         {messages.length === 0 && (
           <div className="flex items-center justify-center h-full text-gray-400">
-            <p>Tell me about your goals and I'll help you achieve them.</p>
+            <p>Tell me about your goals!</p>
           </div>
         )}
 

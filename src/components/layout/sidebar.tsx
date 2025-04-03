@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useTheme } from "@/components/theme-provider";
 import Image from "next/image";
-import { LogOut, Bell, MessageSquare, User } from "lucide-react";
+import { LogOut, Bell, MessageSquare } from "lucide-react";
 
 interface SidebarProps {
   title?: string;

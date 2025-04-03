@@ -34,7 +34,7 @@ export default function DashboardPage() {
         <div className="bg-background/90 backdrop-blur-sm rounded-lg p-4">
           <h2 className="text-lg font-semibold">Weekly Overview</h2>
           <p className="text-sm text-muted-foreground">
-            You've been working hard this week! Keep up the good work and you'll see even better results.
+            You&apos;ve been working hard this week! Keep up the good work and you&apos;ll see even better results.
           </p>
         </div>
       </div>

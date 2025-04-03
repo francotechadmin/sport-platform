@@ -2,10 +2,8 @@
 
 import { Button } from "@/components/ui/button";
 import { Bell, MessageSquare, User } from "lucide-react";
-import { useTheme } from "@/components/theme-provider";
 
 export function TopNav() {
-  const { theme } = useTheme();
 
   return (
     <div className="h-16 border-b border-slate-200/10 dark:border-slate-700/30 bg-background/95 backdrop-blur-sm">

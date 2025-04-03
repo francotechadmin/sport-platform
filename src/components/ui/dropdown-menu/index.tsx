@@ -15,7 +15,7 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
   // Create a context to share the open state
   const contextValue = React.useMemo(
     () => ({ open, onOpenChange }),
-    [open, onOpenChange]
+    [open, onOpenChange],
   );
 
   return (
@@ -111,10 +111,10 @@ const DropdownMenuContent: React.FC<DropdownMenuContentProps> = ({
         align === "end"
           ? "right-0"
           : align === "start"
-          ? "left-0"
-          : "left-1/2 -translate-x-1/2",
+            ? "left-0"
+            : "left-1/2 -translate-x-1/2",
         "top-full mt-1",
-        className
+        className,
       )}
       {...props}
     >
@@ -151,7 +151,7 @@ const DropdownMenuItem: React.FC<DropdownMenuItemProps> = ({
       className={cn(
         "relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground hover:bg-accent hover:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
         inset && "pl-8",
-        className
+        className,
       )}
       onClick={handleClick}
       {...props}

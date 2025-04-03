@@ -39,7 +39,7 @@ export function ThemeProvider({
       setTheme(
         window.matchMedia("(prefers-color-scheme: dark)").matches
           ? "dark"
-          : "light"
+          : "light",
       );
     }
   }, [defaultTheme, storageKey]);

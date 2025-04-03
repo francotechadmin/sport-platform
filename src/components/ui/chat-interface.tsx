@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Avatar } from "@/components/ui/avatar";
 import Markdown from "markdown-to-jsx";
-import { User } from "@deemlol/next-icons"
+import { User } from "@deemlol/next-icons";
 
 export default function ChatInterface() {
   const model = "gpt-4o";

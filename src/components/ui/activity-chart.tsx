@@ -27,7 +27,7 @@ ChartJS.register(
   Title,
   Tooltip,
   Legend,
-  annotationPlugin
+  annotationPlugin,
 );
 
 // Types for our chart props
@@ -121,7 +121,7 @@ export function ActivityChart(props: ActivityChartProps) {
 // Sample data generators for different activity types
 export const generateRunningData = (
   days = 7,
-  goalDistance = 30
+  goalDistance = 30,
 ): { data: ChartData<"line">; goal: number } => {
   const labels = Array.from({ length: days }, (_, i) => {
     const date = new Date();
@@ -151,7 +151,7 @@ export const generateRunningData = (
 
 export const generateSwimmingData = (
   days = 7,
-  goalDistance = 10
+  goalDistance = 10,
 ): { data: ChartData<"line">; goal: number } => {
   const labels = Array.from({ length: days }, (_, i) => {
     const date = new Date();
@@ -181,7 +181,7 @@ export const generateSwimmingData = (
 
 export const generateCyclingData = (
   days = 7,
-  goalDistance = 150
+  goalDistance = 150,
 ): { data: ChartData<"line">; goal: number } => {
   const labels = Array.from({ length: days }, (_, i) => {
     const date = new Date();
@@ -210,7 +210,7 @@ export const generateCyclingData = (
 };
 
 export const generateTrainingIntensityData = (
-  days = 7
+  days = 7,
 ): { data: ChartData<"bar">; goal: null } => {
   const labels = Array.from({ length: days }, (_, i) => {
     const date = new Date();
@@ -250,7 +250,7 @@ export const generateTrainingIntensityData = (
 
 export const generateCalorieData = (
   days = 7,
-  goalCalories = 2500
+  goalCalories = 2500,
 ): { data: ChartData<"bar">; goal: number } => {
   const labels = Array.from({ length: days }, (_, i) => {
     const date = new Date();
@@ -278,7 +278,7 @@ export const generateCalorieData = (
 
 export const generateRecoveryData = (
   days = 7,
-  goalSleep = 8
+  goalSleep = 8,
 ): { data: ChartData<"line">; goal: number } => {
   const labels = Array.from({ length: days }, (_, i) => {
     const date = new Date();

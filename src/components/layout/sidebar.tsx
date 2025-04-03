@@ -343,7 +343,7 @@ export function Sidebar({ title = "ProFormAI" }: SidebarProps) {
           className="p-4 border-t border-slate-200/10 dark:border-slate-700/30 flex flex-col gap-2"
           style={{ backgroundColor: "hsl(var(--background))" }}
         >
-          <Button variant="outline" asChild className="w-full text-sm flex items-center gap-2">
+          <Button variant="outline" asChild className="w-full text-sm flex items-center gap-2 border-slate-200/10 dark:border-slate-700/30">
             <Link href="/signin">Sign Out</Link>
             <LogOut className="h-4 w-4" />
           </Button>

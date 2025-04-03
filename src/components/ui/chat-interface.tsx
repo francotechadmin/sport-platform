@@ -204,7 +204,7 @@ export default function ChatInterface() {
       >
         {messages.length === 0 && (
           <div className="flex items-center justify-center h-full text-gray-400">
-            <p>No messages yet. Start a conversation!</p>
+            <p>Tell me about your goals and I'll help you achieve them.</p>
           </div>
         )}
 

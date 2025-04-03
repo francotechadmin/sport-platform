@@ -35,9 +35,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ThemeProvider defaultTheme="system" storageKey="ui-theme">
-          <div className="flex justify-center w-full bg-background min-h-screen">
-            {children}
-          </div>
+          {children}
         </ThemeProvider>
       </body>
     </html>

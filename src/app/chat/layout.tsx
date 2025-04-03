@@ -1,13 +1,11 @@
 "use client";
 
-export default function ChatLayout({
+import { DashboardLayout } from "@/components/layout/dashboard-layout";
+
+export default function ChatAppLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return (
-    <div className="min-h-screen flex flex-col w-full">
-      <main className="flex-1 w-full">{children}</main>
-    </div>
-  );
+  return <DashboardLayout>{children}</DashboardLayout>;
 }

@@ -7,12 +7,19 @@ import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
+import { useTheme } from "next-themes";
 
 export default function SettingsPage() {
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [appNotifications, setAppNotifications] = useState(true);
   const [darkMode, setDarkMode] = useState(false);
   const [dataSharing, setDataSharing] = useState(true);
+
+  const { setTheme } = useTheme();
+  const handleThemeChange = (value: string) => {
+    setTheme(value);
+    setDarkMode(value === "dark");
+  };
 
   return (
     <div className="p-6">
@@ -170,7 +177,12 @@ export default function SettingsPage() {
                     Toggle dark theme
                   </p>
                 </div>
-                <Switch checked={darkMode} onCheckedChange={setDarkMode} />
+                <Switch
+                  checked={darkMode}
+                  onCheckedChange={(checked) =>
+                    handleThemeChange(checked ? "dark" : "light")
+                  }
+                />
               </div>
 
               <div className="flex items-center justify-between">

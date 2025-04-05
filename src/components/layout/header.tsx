@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { ThemeToggle } from "@/components/theme-toggle";
+import { ModeToggle } from "@/components/theme-toggle";
 
 interface HeaderProps {
   title?: string;
@@ -23,7 +23,7 @@ export function Header({ title = "ProFormAi Chat" }: HeaderProps) {
         <nav className="hidden md:flex items-center gap-4">
           <Link href="/dashboard">Dashboard</Link>
           <Link href="/chat">Chat</Link>
-          <ThemeToggle />
+          <ModeToggle />
           <Button variant="outline" asChild>
             <Link href="/signin">Sign Out</Link>
           </Button>
@@ -31,7 +31,7 @@ export function Header({ title = "ProFormAi Chat" }: HeaderProps) {
 
         {/* Mobile menu button */}
         <div className="flex md:hidden items-center gap-2">
-          <ThemeToggle />
+          <ModeToggle />
           <Button
             variant="ghost"
             size="icon"

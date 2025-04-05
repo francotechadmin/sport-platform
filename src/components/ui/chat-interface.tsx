@@ -269,7 +269,7 @@ export default function ChatInterface() {
       </div>
 
       {/* Message input - fixed position at bottom */}
-      <div className="border-t border-slate-200/10 dark:border-slate-700/30 bg-background/90 p-4 w-full shadow-sm z-50 md:static md:border-t-0 md:bg-background/90">
+      <div className="border-t border-slate-200/10 dark:border-slate-700/30 p-4 w-full shadow-sm z-50 md:static md:border-t-0">
         <form
           onSubmit={onSubmit}
           className="flex items-center gap-2 w-full max-w-xl mx-auto"
@@ -278,7 +278,7 @@ export default function ChatInterface() {
         >
           <Textarea
             ref={inputRef}
-            className="flex-1 rounded-lg border-slate-200/20 dark:border-slate-700/40 bg-background/90 shadow-sm focus-visible:ring-1 focus-visible:ring-slate-300/50 dark:focus-visible:ring-slate-700/50"
+            className="flex-1 rounded-lg border-slate-200/20 dark:border-slate-700/40 shadow-sm focus-visible:ring-1 focus-visible:ring-slate-300/50 dark:focus-visible:ring-slate-700/50"
             placeholder="Type your message..."
             value={input}
             onChange={handleInputChange}

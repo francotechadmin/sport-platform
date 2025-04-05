@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useState, useRef } from "react";
 import {
   Card,
   CardContent,
@@ -18,7 +18,6 @@ import { OnboardingModal } from "@/components/ui/onboarding-modal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import Link from "next/link";
 import { Loader, ArrowUpCircle, User } from "@deemlol/next-icons";
 import Markdown from "markdown-to-jsx";
@@ -27,7 +26,6 @@ import { useChat } from "@ai-sdk/react";
 
 export default function DashboardPage() {
   const [showOnboarding, setShowOnboarding] = useState(false);
-  const [progressValue, setProgressValue] = useState(60);
 
   // Initialize chat with system message
   const { messages, input, handleInputChange, handleSubmit, isLoading, error } =
@@ -64,23 +62,6 @@ export default function DashboardPage() {
 
   // Get visible messages (non-system) for display
   const visibleMessages = messages.filter((msg) => msg.role !== "system");
-
-  useEffect(() => {
-    // Check if the user has completed onboarding
-    const hasCompletedOnboarding = localStorage.getItem(
-      "hasCompletedOnboarding"
-    );
-    if (!hasCompletedOnboarding) {
-      setShowOnboarding(true);
-    }
-
-    // Simulate progress animation
-    const interval = setInterval(() => {
-      setProgressValue((v) => (v >= 100 ? 100 : v + 1));
-    }, 100);
-
-    return () => clearInterval(interval);
-  }, []);
 
   const handleOnboardingComplete = () => {
     localStorage.setItem("hasCompletedOnboarding", "true");
@@ -426,13 +407,6 @@ export default function DashboardPage() {
               </Button>
             </div>
           </CardContent>
-
-          <div className="absolute bottom-0 left-0 w-full h-1 bg-muted">
-            <div
-              className="h-full bg-primary"
-              style={{ width: `${progressValue}%` }}
-            ></div>
-          </div>
         </Card>
       </div>
 
@@ -489,10 +463,6 @@ export default function DashboardPage() {
                       {goal.current}/{goal.target} {goal.unit}
                     </div>
                   </div>
-                  <Progress
-                    value={(goal.current / goal.target) * 100}
-                    className="h-2"
-                  />
                 </div>
               ))}
             </div>

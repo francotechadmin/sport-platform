@@ -1,23 +1,39 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { useChat } from "@ai-sdk/react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Avatar } from "@/components/ui/avatar";
 import Markdown from "markdown-to-jsx";
 import { User } from "@deemlol/next-icons";
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { ArrowUpCircle } from "@deemlol/next-icons";
+
+// Create a Textarea component for multiline input
+const Textarea = React.forwardRef<
+  HTMLTextAreaElement,
+  React.TextareaHTMLAttributes<HTMLTextAreaElement>
+>(({ className, ...props }, ref) => {
+  return (
+    <textarea
+      className={cn(
+        "flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 min-h-[80px] resize-none",
+        className
+      )}
+      ref={ref}
+      {...props}
+    />
+  );
+});
+Textarea.displayName = "Textarea";
 
 export default function ChatInterface() {
   const model = "gpt-4o";
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
   const messageContainerRef = useRef<HTMLDivElement>(null);
-  const [isIOS, setIsIOS] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
-  const [keyboardVisible, setKeyboardVisible] = useState(false);
-  const [viewportHeight, setViewportHeight] = useState(0);
 
   const { messages, input, handleInputChange, handleSubmit, isLoading, error } =
     useChat({
@@ -42,165 +58,100 @@ export default function ChatInterface() {
       },
     });
 
-  // Detect device type
+  // Scroll to bottom only when necessary
   useEffect(() => {
-    const checkIsIOS = () => {
-      const userAgent = window.navigator.userAgent.toLowerCase();
-      return /iphone|ipad|ipod/.test(userAgent);
-    };
-    
-    const checkIsMobile = () => {
-      return window.innerWidth < 768;
-    };
-    
-    setIsIOS(checkIsIOS());
-    setIsMobile(checkIsMobile());
-    setViewportHeight(window.innerHeight);
-    
-    const handleResize = () => {
-      setIsMobile(checkIsMobile());
-      setViewportHeight(window.innerHeight);
-    };
-    
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  // Handle iOS keyboard visibility
-  useEffect(() => {
-    if (!isIOS || !isMobile) return;
-
-    // Track when keyboard appears/disappears by monitoring viewport height changes
-    const handleVisualViewportResize = () => {
-      // If we're on iOS and the viewport height decreased significantly, keyboard likely appeared
-      const currentHeight = window.visualViewport?.height || window.innerHeight;
-      const heightDifference = viewportHeight - currentHeight;
-      const keyboardIsNowVisible = heightDifference > 150; // Threshold to determine keyboard visibility
-      
-      setKeyboardVisible(keyboardIsNowVisible);
-      
-      // When keyboard appears, scroll to input after a small delay
-      if (keyboardIsNowVisible && inputRef.current) {
-        setTimeout(() => {
-          inputRef.current?.focus();
-          scrollToBottom();
-        }, 100);
-      }
-    };
-
-    // Use visualViewport API if available (more reliable on iOS)
-    if (window.visualViewport) {
-      window.visualViewport.addEventListener('resize', handleVisualViewportResize);
-      return () => window.visualViewport?.removeEventListener('resize', handleVisualViewportResize);
-    } else {
-      // Fallback to window resize events
-      window.addEventListener('resize', handleVisualViewportResize);
-      return () => window.removeEventListener('resize', handleVisualViewportResize);
-    }
-  }, [isIOS, isMobile, viewportHeight]);
-
-  // Add focus/blur handlers for iOS keyboard
-  useEffect(() => {
-    if (!isIOS || !isMobile) return;
-    
-    const handleFocus = () => {
-      setKeyboardVisible(true);
-      // Prevent body scrolling when keyboard is active
-      document.body.style.position = 'fixed';
-      document.body.style.width = '100%';
-      document.body.style.height = `${window.innerHeight}px`;
-      
-      // Scroll to input with delay to ensure layout is complete
-      setTimeout(() => scrollToBottom(), 100);
-    };
-    
-    const handleBlur = () => {
-      setKeyboardVisible(false);
-      // Restore normal scrolling
-      document.body.style.position = '';
-      document.body.style.width = '';
-      document.body.style.height = '';
-    };
-    
-    inputRef.current?.addEventListener('focus', handleFocus);
-    inputRef.current?.addEventListener('blur', handleBlur);
-    
-    return () => {
-      inputRef.current?.removeEventListener('focus', handleFocus);
-      inputRef.current?.removeEventListener('blur', handleBlur);
-    };
-  }, [isIOS, isMobile]);
-
-  // Log messages whenever they change
-  useEffect(() => {
-    console.log("Messages updated:", messages);
-  }, [messages]);
-
-  // Scroll to bottom whenever messages change or during streaming
-  useEffect(() => {
-    // Only scroll if we have messages or are in loading state
     if (messages.length > 0 || isLoading) {
-      scrollToBottom();
+      // Check if scrolling is needed (content exceeds container)
+      const container = messageContainerRef.current;
+      const shouldScroll =
+        container &&
+        (container.scrollHeight > container.clientHeight ||
+          // Always scroll on new user message or during loading
+          messages[messages.length - 1]?.role === "user" ||
+          isLoading);
+
+      if (shouldScroll) {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+      }
     }
   }, [messages, isLoading]);
 
-  // Function to scroll to the bottom of the messages
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
-  // Log errors
-  useEffect(() => {
-    if (error) {
-      console.error("Chat error state:", error);
-    }
-  }, [error]);
-
-  // Custom submit handler with logging
+  // Custom submit handler with keyboard dismissal
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("Submitting message:", input);
+
+    // Blur the input to dismiss keyboard on mobile
+    inputRef.current?.blur();
 
     try {
       await handleSubmit(e);
-      console.log("Message submitted successfully");
     } catch (error) {
       console.error("Error submitting message:", error);
     }
   };
 
-  // Add meta viewport tag for iOS
-  useEffect(() => {
-    if (isIOS && isMobile) {
-      // Find or create viewport meta tag
-      let viewportMeta = document.querySelector('meta[name="viewport"]') as HTMLMetaElement | null;
-      
-      if (!viewportMeta) {
-        viewportMeta = document.createElement('meta') as HTMLMetaElement;
-        viewportMeta.name = 'viewport';
-        document.head.appendChild(viewportMeta);
+  // Handle keydown for textarea - allow newlines but prevent form submission
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    console.log("Key pressed:", e.key);
+
+    // Only handle Enter keys
+    if (e.key === "Enter") {
+      e.preventDefault();
+
+      // Add new line empty line always even if shift is not pressed
+      const selectionStart = e.currentTarget.selectionStart;
+      const selectionEnd = e.currentTarget.selectionEnd;
+      const value = e.currentTarget.value;
+      const newValue =
+        value.substring(0, selectionStart) +
+        "\n" +
+        value.substring(selectionEnd);
+      e.currentTarget.value = newValue;
+      e.currentTarget.setSelectionRange(selectionStart + 1, selectionStart + 1);
+      // Resize the textarea to fit the new content
+      if (inputRef.current) {
+        inputRef.current.style.height = "auto"; // Reset height to auto
+        inputRef.current.style.height = `${inputRef.current.scrollHeight}px`; // Set new height
       }
-      
-      // Set proper viewport properties - critical fix for iOS Safari
-      viewportMeta.content = 'interactive-widget=resizes-content, width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover';
     }
-  }, [isIOS, isMobile]);
+  };
+
+  // Auto-resize textarea as content grows
+  useEffect(() => {
+    if (inputRef.current) {
+      // Reset height to calculate proper scrollHeight
+      inputRef.current.style.height = "auto";
+
+      // Set new height based on content (with a reasonable max height)
+      const newHeight = Math.min(inputRef.current.scrollHeight, 150);
+      inputRef.current.style.height = `${newHeight}px`;
+    }
+  }, [input]);
+
+  // Add meta viewport tag for better mobile handling
+  useEffect(() => {
+    // Find or create viewport meta tag
+    let viewportMeta = document.querySelector(
+      'meta[name="viewport"]'
+    ) as HTMLMetaElement | null;
+
+    if (!viewportMeta) {
+      viewportMeta = document.createElement("meta") as HTMLMetaElement;
+      viewportMeta.name = "viewport";
+      document.head.appendChild(viewportMeta);
+    }
+
+    // Set viewport properties
+    viewportMeta.content =
+      "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover";
+  }, []);
 
   return (
-    <div 
-      className="flex flex-col h-full w-full overflow-hidden" 
-      style={{
-        height: isIOS && isMobile ? `${viewportHeight}px` : '100%',
-        position: 'relative'
-      }}
-    >
+    <div className="flex flex-col h-full w-full overflow-hidden">
       {/* Chat messages */}
-      <div 
+      <div
         ref={messageContainerRef}
-        className="flex-1 overflow-y-auto p-4 space-y-4 w-full"
-        style={{
-          paddingBottom: isIOS && isMobile ? (keyboardVisible ? '120px' : '80px') : '80px'
-        }}
+        className="flex-1 overflow-y-auto p-4 space-y-4 w-full pb-20"
       >
         {messages.length === 0 && (
           <div className="flex items-center justify-center h-full text-gray-400">
@@ -284,51 +235,42 @@ export default function ChatInterface() {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Message input - positioned fixed for iOS */}
-      <div 
-        className={`border-t border-slate-200/10 dark:border-slate-700/30 bg-background/90 backdrop-blur-sm p-4 w-full shadow-sm ${
-          isIOS && isMobile ? 'fixed' : 'absolute'
-        } bottom-0 left-0 right-0 md:left-auto`}
+      {/* Message input - fixed position at bottom */}
+      <div
+        className="border-t border-slate-200/10 dark:border-slate-700/30 bg-background/90 backdrop-blur-sm p-4 w-full shadow-sm fixed bottom-0 left-0 right-0 z-50 md:static md:border-t-0 md:bg-background/90 md:backdrop-blur-none"
         style={{
-          paddingBottom: isIOS ? `calc(0.75rem + env(safe-area-inset-bottom, 0.75rem))` : '1rem',
-          zIndex: 50
+          paddingBottom: `calc(1rem + env(safe-area-inset-bottom, 0.75rem))`,
         }}
       >
-        <form onSubmit={onSubmit} className="flex items-center gap-2 w-full max-w-4xl mx-auto md:pr-4">
-          <Input
+        <form
+          onSubmit={onSubmit}
+          className="flex items-center gap-2 w-full max-w-xl mx-auto"
+          // disable native form submission
+          onSubmitCapture={(e) => e.preventDefault()}
+        >
+          <Textarea
             ref={inputRef}
-            className="flex-1 min-h-10 rounded-lg border-slate-200/20 dark:border-slate-700/40 bg-background/90 backdrop-blur-sm shadow-sm focus-visible:ring-1 focus-visible:ring-slate-300/50 dark:focus-visible:ring-slate-700/50"
+            className="flex-1 rounded-lg border-slate-200/20 dark:border-slate-700/40 bg-background/90 backdrop-blur-sm shadow-sm focus-visible:ring-1 focus-visible:ring-slate-300/50 dark:focus-visible:ring-slate-700/50"
             placeholder="Type your message..."
             value={input}
             onChange={handleInputChange}
-            autoComplete="off"
+            onKeyDown={handleKeyDown}
+            autoComplete="true"
             spellCheck="true"
-            style={{ 
+            style={{
               fontSize: "16px",
-              paddingTop: "0.65rem",
-              paddingBottom: "0.65rem"
+              minHeight: "40px",
+              maxHeight: "150px",
             }}
+            rows={1}
           />
-          <Button 
-            type="submit" 
-            disabled={isLoading || !input.trim()} 
+          <Button
+            type="submit"
+            disabled={isLoading || !input.trim()}
             className="rounded-lg shadow-sm h-10 px-3"
+            onClick={() => inputRef.current?.blur()} // Ensure keyboard is dismissed on mobile
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="h-4 w-4"
-            >
-              <line x1="22" y1="2" x2="11" y2="13"></line>
-              <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-            </svg>
+            <ArrowUpCircle className="h-6 w-6" />
             <span className="sr-only">Send</span>
           </Button>
         </form>

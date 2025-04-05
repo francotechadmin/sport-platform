@@ -6,7 +6,7 @@ import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTheme } from "next-themes";
 
 export default function SettingsPage() {
@@ -20,6 +20,13 @@ export default function SettingsPage() {
     setTheme(value);
     setDarkMode(value === "dark");
   };
+
+  useEffect(() => {
+    const theme = localStorage.getItem("theme");
+    if (theme) {
+      setDarkMode(theme === "dark");
+    }
+  }, []);
 
   return (
     <div className="p-6">

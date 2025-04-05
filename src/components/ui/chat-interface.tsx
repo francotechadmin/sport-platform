@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useChat } from "@ai-sdk/react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -34,6 +34,7 @@ export default function ChatInterface() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const messageContainerRef = useRef<HTMLDivElement>(null);
+  const [isMobile, setIsMobile] = useState<boolean>(false);
 
   const { messages, input, handleInputChange, handleSubmit, isLoading, error } =
     useChat({
@@ -57,6 +58,26 @@ export default function ChatInterface() {
         console.error("Chat API error:", error);
       },
     });
+
+  // Detect if user is on mobile
+  useEffect(() => {
+    const checkIsMobile = () => {
+      return (
+        /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+          navigator.userAgent
+        ) || window.innerWidth < 768
+      );
+    };
+
+    setIsMobile(checkIsMobile());
+
+    const handleResize = () => {
+      setIsMobile(checkIsMobile());
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   // Scroll to bottom only when necessary
   useEffect(() => {
@@ -90,28 +111,60 @@ export default function ChatInterface() {
     }
   };
 
-  // Handle keydown for textarea - allow newlines but prevent form submission
+  // Add a newline at current cursor position
+  const addNewline = (textarea: HTMLTextAreaElement) => {
+    const selectionStart = textarea.selectionStart;
+    const selectionEnd = textarea.selectionEnd;
+    const value = textarea.value;
+    const newValue =
+      value.substring(0, selectionStart) + "\n" + value.substring(selectionEnd);
+
+    // Update the value
+    handleInputChange({
+      target: { value: newValue },
+    } as React.ChangeEvent<HTMLTextAreaElement>);
+
+    // Set cursor position after the new line (needs to be after state update)
+    setTimeout(() => {
+      if (inputRef.current) {
+        inputRef.current.selectionStart = selectionStart + 1;
+        inputRef.current.selectionEnd = selectionStart + 1;
+
+        // Resize the textarea
+        inputRef.current.style.height = "auto";
+        inputRef.current.style.height = `${inputRef.current.scrollHeight}px`;
+      }
+    }, 0);
+  };
+
+  // Handle keydown for textarea with different behavior for desktop and mobile
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     console.log("Key pressed:", e.key);
 
-    // Only handle Enter keys
     if (e.key === "Enter") {
-      e.preventDefault();
-
-      // Add new line empty line always even if shift is not pressed
-      const selectionStart = e.currentTarget.selectionStart;
-      const selectionEnd = e.currentTarget.selectionEnd;
-      const value = e.currentTarget.value;
-      const newValue =
-        value.substring(0, selectionStart) +
-        "\n" +
-        value.substring(selectionEnd);
-      e.currentTarget.value = newValue;
-      e.currentTarget.setSelectionRange(selectionStart + 1, selectionStart + 1);
-      // Resize the textarea to fit the new content
-      if (inputRef.current) {
-        inputRef.current.style.height = "auto"; // Reset height to auto
-        inputRef.current.style.height = `${inputRef.current.scrollHeight}px`; // Set new height
+      if (isMobile) {
+        // On mobile: Enter always adds a newline, never submits
+        e.preventDefault();
+        addNewline(e.currentTarget);
+      } else {
+        // On desktop:
+        // - Shift+Enter adds a newline
+        // - Plain Enter submits the form
+        if (e.shiftKey) {
+          // Shift+Enter adds a newline
+          e.preventDefault();
+          addNewline(e.currentTarget);
+        } else {
+          // Plain Enter submits if there's content
+          if (input.trim()) {
+            e.preventDefault();
+            const form = inputRef.current?.closest("form");
+            form?.requestSubmit();
+          } else {
+            // Prevent submission for empty input
+            e.preventDefault();
+          }
+        }
       }
     }
   };

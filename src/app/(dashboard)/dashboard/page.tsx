@@ -322,16 +322,7 @@ export default function DashboardPage() {
                       }`}
                     >
                       <div className="prose prose-sm dark:prose-invert max-w-none">
-                        {message.parts?.map((part, i) => {
-                          if (part.type === "text") {
-                            return (
-                              <Markdown key={`${message.id}-${i}`}>
-                                {part.text}
-                              </Markdown>
-                            );
-                          }
-                          return null;
-                        }) || <Markdown>{message.content}</Markdown>}
+                        <Markdown>{message.content}</Markdown>
                       </div>
                     </div>
 

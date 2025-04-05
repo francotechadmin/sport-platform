@@ -4,8 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { ThemeToggle } from "@/components/theme-toggle";
-import { useTheme } from "@/components/theme-provider";
+import { useTheme } from "next-themes";
 import Image from "next/image";
 import { LogOut, Bell, MessageSquare } from "@deemlol/next-icons";
 
@@ -19,32 +18,13 @@ export function Sidebar({ title = "ProFormAi" }: SidebarProps) {
   const { theme } = useTheme();
   const [isDarkTheme, setIsDarkTheme] = useState(false);
 
-  // Set initial dark theme state
+  // Check if the theme is dark
   useEffect(() => {
-    const updateTheme = () => {
-      if (theme === "dark") {
-        setIsDarkTheme(true);
-      } else if (theme === "light") {
-        setIsDarkTheme(false);
-      } else if (theme === "system") {
-        setIsDarkTheme(
-          window.matchMedia("(prefers-color-scheme: dark)").matches
-        );
-      }
-    };
-
-    updateTheme();
-
-    // Listen for system preference changes
-    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-    const handleChange = () => {
-      if (theme === "system") {
-        setIsDarkTheme(mediaQuery.matches);
-      }
-    };
-
-    mediaQuery.addEventListener("change", handleChange);
-    return () => mediaQuery.removeEventListener("change", handleChange);
+    const isDark =
+      theme === "dark" ||
+      (theme === "system" &&
+        window.matchMedia("(prefers-color-scheme: dark)").matches);
+    setIsDarkTheme(isDark);
   }, [theme]);
 
   // Close sidebar when pathname changes (navigation occurs)
@@ -80,10 +60,7 @@ export function Sidebar({ title = "ProFormAi" }: SidebarProps) {
   return (
     <>
       {/* Mobile Header */}
-      <div
-        className="md:hidden fixed top-0 left-0 right-0 z-20 border-b border-slate-200/10 dark:border-slate-700/30 shadow-sm bg-background/95 backdrop-blur-sm"
-        style={{ backgroundColor: "hsl(var(--background))" }}
-      >
+      <div className="md:hidden fixed top-0 left-0 right-0 z-20 border-b border-slate-200/10 dark:border-slate-700/30 shadow-sm bg-background/95 backdrop-blur-sm">
         <div className="flex flex-col">
           <div className="flex items-center justify-between p-4">
             <Link
@@ -175,7 +152,6 @@ export function Sidebar({ title = "ProFormAi" }: SidebarProps) {
           ${isMobileOpen ? "translate-x-0" : "-translate-x-full"}
           md:static md:z-0
         `}
-        style={{ backgroundColor: "hsl(var(--background))" }}
       >
         {/* Desktop header - hidden on mobile */}
         <div className="p-4 border-b border-slate-200/10 dark:border-slate-700/30 hidden md:block">
@@ -206,10 +182,7 @@ export function Sidebar({ title = "ProFormAi" }: SidebarProps) {
         </div>
 
         {/* Mobile close button - only visible on mobile */}
-        <div
-          className="p-4 border-b border-slate-200/10 dark:border-slate-700/30 flex justify-between items-center md:hidden"
-          style={{ backgroundColor: "hsl(var(--background))" }}
-        >
+        <div className="p-4 border-b border-slate-200/10 dark:border-slate-700/30 flex justify-between items-center md:hidden">
           <div className="flex items-center gap-2">
             {/* logos */}
             {!isDarkTheme ? (
@@ -255,10 +228,7 @@ export function Sidebar({ title = "ProFormAi" }: SidebarProps) {
           </Button>
         </div>
 
-        <nav
-          className="flex-1 px-2 py-4 space-y-1 overflow-y-auto"
-          style={{ backgroundColor: "hsl(var(--background))" }}
-        >
+        <nav className="flex-1 px-2 py-4 space-y-1 overflow-y-auto">
           <Link
             href="/dashboard"
             className={`flex items-center px-3 py-2 rounded-lg transition-all duration-200 ${
@@ -352,21 +322,16 @@ export function Sidebar({ title = "ProFormAi" }: SidebarProps) {
           )}
         </nav>
 
-        <div className="flex items-center justify-between mx-auto">
-          <ThemeToggle />
-        </div>
-
-        <div
-          className="p-4 border-t border-slate-200/10 dark:border-slate-700/30 flex flex-col gap-2"
-          style={{ backgroundColor: "hsl(var(--background))" }}
-        >
+        <div className="p-4 border-t border-slate-200/10 dark:border-slate-700/30 flex flex-col gap-2">
           <Button
             variant="outline"
             asChild
             className="w-full text-sm flex items-center gap-2 border-slate-200/10 dark:border-slate-700/30"
           >
-            <Link href="/signin">Sign Out</Link>
-            <LogOut className="h-4 w-4" />
+            <Link href="/signin" className="flex items-center gap-2">
+              Sign Out
+              <LogOut className="h-4 w-4" />
+            </Link>
           </Button>
         </div>
       </div>

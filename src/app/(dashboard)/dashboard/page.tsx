@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -16,8 +17,26 @@ import {
   generateCalorieData,
   generateRecoveryData,
 } from "@/components/ui/activity-chart";
+import { OnboardingModal } from "@/components/ui/onboarding-modal";
 
 export default function DashboardPage() {
+  const [showOnboarding, setShowOnboarding] = useState(false);
+
+  useEffect(() => {
+    // Check if the user has completed onboarding
+    const hasCompletedOnboarding = localStorage.getItem(
+      "hasCompletedOnboarding"
+    );
+    if (!hasCompletedOnboarding) {
+      setShowOnboarding(true);
+    }
+  }, []);
+
+  const handleOnboardingComplete = () => {
+    localStorage.setItem("hasCompletedOnboarding", "true");
+    setShowOnboarding(false);
+  };
+
   // Generate sample data for charts
   const runningData = generateRunningData();
   const swimmingData = generateSwimmingData();
@@ -28,18 +47,21 @@ export default function DashboardPage() {
 
   return (
     <div className="w-full">
+      {showOnboarding && (
+        <OnboardingModal onComplete={handleOnboardingComplete} />
+      )}
 
-      {/* Weekly Overview message from ai */} 
+      {/* Weekly Overview message from ai */}
       <div className="max-w-7xl mx-auto grid gap-6 md:grid-cols-2 lg:grid-cols-3 px-4">
-        <div className="bg-background/90 backdrop-blur-sm rounded-lg p-4">
+        <div className=" backdrop-blur-sm rounded-lg p-4">
           <h2 className="text-lg font-semibold">Weekly Overview</h2>
           <p className="text-sm text-muted-foreground">
-            You&apos;ve been working hard this week! Keep up the good work and you&apos;ll see even better results.
+            You&apos;ve been working hard this week! Keep up the good work and
+            you&apos;ll see even better results.
           </p>
         </div>
       </div>
 
-  
       <div className="max-w-7xl mx-auto grid gap-6 md:grid-cols-2 lg:grid-cols-3 px-4">
         <Card>
           <CardHeader>

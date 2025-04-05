@@ -5,32 +5,13 @@ import { useChat } from "@ai-sdk/react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar } from "@/components/ui/avatar";
+import { Textarea } from "@/components/ui/textarea";
 import Markdown from "markdown-to-jsx";
 import { User } from "@deemlol/next-icons";
 import * as React from "react";
-import { cn } from "@/lib/utils";
 import { ArrowUpCircle } from "@deemlol/next-icons";
 
-// Create a Textarea component for multiline input
-const Textarea = React.forwardRef<
-  HTMLTextAreaElement,
-  React.TextareaHTMLAttributes<HTMLTextAreaElement>
->(({ className, ...props }, ref) => {
-  return (
-    <textarea
-      className={cn(
-        "flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 min-h-[80px] resize-none",
-        className
-      )}
-      ref={ref}
-      {...props}
-    />
-  );
-});
-Textarea.displayName = "Textarea";
-
 export default function ChatInterface() {
-  const model = "gpt-4o";
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const messageContainerRef = useRef<HTMLDivElement>(null);
@@ -39,7 +20,6 @@ export default function ChatInterface() {
   const { messages, input, handleInputChange, handleSubmit, isLoading, error } =
     useChat({
       api: "/api/chat",
-      body: { model },
       onResponse: (response) => {
         console.log("Chat API response received:", {
           status: response.status,
@@ -289,14 +269,7 @@ export default function ChatInterface() {
       </div>
 
       {/* Message input - fixed position at bottom */}
-      <div
-        className="border-t border-slate-200/10 dark:border-slate-700/30 bg-background/90 p-4 w-full shadow-sm z-50 md:static md:border-t-0 md:bg-background/90"
-        style={
-          {
-            // paddingBottom: `calc(1rem + env(safe-area-inset-bottom, 0.75rem))`,
-          }
-        }
-      >
+      <div className="border-t border-slate-200/10 dark:border-slate-700/30 bg-background/90 p-4 w-full shadow-sm z-50 md:static md:border-t-0 md:bg-background/90">
         <form
           onSubmit={onSubmit}
           className="flex items-center gap-2 w-full max-w-xl mx-auto"

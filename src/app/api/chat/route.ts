@@ -22,14 +22,14 @@ export async function POST(req: Request) {
         {
           status: 400,
           headers: { "Content-Type": "application/json" },
-        },
+        }
       );
     }
 
-    console.log("Creating stream with openai model: gpt-4o");
-
     const result = streamText({
-      model: openai("ft:gpt-4o-2024-08-06:humanityai:proform-reflection-v8-deepmode:BI73k4sj"),
+      model: openai(
+        "ft:gpt-4o-2024-08-06:humanityai:proform-reflection-v8-deepmode:BI73k4sj"
+      ),
       messages,
     });
 
@@ -48,7 +48,7 @@ export async function POST(req: Request) {
         headers: {
           "Content-Type": "application/json",
         },
-      },
+      }
     );
   }
 }

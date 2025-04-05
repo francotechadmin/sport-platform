@@ -204,7 +204,7 @@ export default function ChatInterface() {
       {/* Chat messages */}
       <div
         ref={messageContainerRef}
-        className="flex-1 overflow-y-auto p-4  w-full pb-20"
+        className="flex-1 overflow-y-auto p-4 w-full"
       >
         {messages.length === 0 && (
           <div className="flex items-center justify-center h-full text-gray-400">
@@ -215,7 +215,7 @@ export default function ChatInterface() {
         {messages.map((message) => (
           <div
             key={message.id}
-            className={`flex items-start gap-3 ${
+            className={`flex items-start gap-3 my-4  ${
               message.role === "user" ? "justify-end" : "justify-start"
             }`}
           >
@@ -290,10 +290,12 @@ export default function ChatInterface() {
 
       {/* Message input - fixed position at bottom */}
       <div
-        className="border-t border-slate-200/10 dark:border-slate-700/30 bg-background/90 backdrop-blur-sm p-4 w-full shadow-sm fixed bottom-0 left-0 right-0 z-50 md:static md:border-t-0 md:bg-background/90 md:backdrop-blur-none"
-        style={{
-          paddingBottom: `calc(1rem + env(safe-area-inset-bottom, 0.75rem))`,
-        }}
+        className="border-t border-slate-200/10 dark:border-slate-700/30 bg-background/90 p-4 w-full shadow-sm z-50 md:static md:border-t-0 md:bg-background/90"
+        style={
+          {
+            // paddingBottom: `calc(1rem + env(safe-area-inset-bottom, 0.75rem))`,
+          }
+        }
       >
         <form
           onSubmit={onSubmit}
@@ -303,7 +305,7 @@ export default function ChatInterface() {
         >
           <Textarea
             ref={inputRef}
-            className="flex-1 rounded-lg border-slate-200/20 dark:border-slate-700/40 bg-background/90 backdrop-blur-sm shadow-sm focus-visible:ring-1 focus-visible:ring-slate-300/50 dark:focus-visible:ring-slate-700/50"
+            className="flex-1 rounded-lg border-slate-200/20 dark:border-slate-700/40 bg-background/90 shadow-sm focus-visible:ring-1 focus-visible:ring-slate-300/50 dark:focus-visible:ring-slate-700/50"
             placeholder="Type your message..."
             value={input}
             onChange={handleInputChange}

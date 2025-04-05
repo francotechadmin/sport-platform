@@ -13,7 +13,7 @@ export default function LockerRoomPage() {
       athlete: {
         name: "Sarah Johnson",
         verified: true,
-        avatar: "/avatars/athlete-1.jpg",
+        avatar: "athlete-1.jpg",
         sport: "Marathon Runner",
       },
       content:
@@ -29,7 +29,7 @@ export default function LockerRoomPage() {
           athlete: {
             name: "Michael Chen",
             verified: true,
-            avatar: "/avatars/athlete-2.jpg",
+            avatar: "athlete-2.jpg",
           },
           content:
             "Try adding more protein immediately after your long runs. I've found a 3:1 carb to protein ratio works best for me.",
@@ -42,7 +42,7 @@ export default function LockerRoomPage() {
       athlete: {
         name: "Alex Rivera",
         verified: true,
-        avatar: "/avatars/athlete-3.jpg",
+        avatar: "athlete-3.jpg",
         sport: "Triathlete",
       },
       content:
@@ -58,7 +58,7 @@ export default function LockerRoomPage() {
           athlete: {
             name: "Emma Lewis",
             verified: true,
-            avatar: "/avatars/athlete-4.jpg",
+            avatar: "athlete-4.jpg",
           },
           content:
             "Coach Wilson at TriSwim Academy completely transformed my technique. Worth every penny.",
@@ -69,7 +69,7 @@ export default function LockerRoomPage() {
           athlete: {
             name: "David Park",
             verified: true,
-            avatar: "/avatars/athlete-5.jpg",
+            avatar: "athlete-5.jpg",
           },
           content:
             "Are you focusing on bilateral breathing? That was a game-changer for me.",
@@ -87,49 +87,6 @@ export default function LockerRoomPage() {
           Verified Athletes Only
         </Badge>
       </div>
-
-      {/* Search */}
-      {/* <Card className="mb-8">
-        <CardContent className="pt-6">
-          <div className="relative">
-            <Input
-              placeholder="Search the athlete feed..."
-              className="pl-10 pr-4"
-            />
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-              />
-            </svg>
-            <div className="mt-2 text-xs text-muted-foreground flex items-center">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-4 w-4 mr-1"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-              GPT semantic search available in Pro tier
-            </div>
-          </div>
-        </CardContent>
-      </Card> */}
 
       {/* New Post */}
       <Card className="mb-8">
@@ -173,8 +130,23 @@ export default function LockerRoomPage() {
         <Card key={post.id} className="mb-6">
           <CardContent className="pt-6">
             <div className="flex items-start space-x-4 mb-4">
-              <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center text-xl font-bold">
-                {post.athlete.name.charAt(0)}
+              <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center text-xl font-bold overflow-hidden">
+                {post.athlete.avatar ? (
+                  <img
+                    src={post.athlete.avatar}
+                    alt={post.athlete.name}
+                    className="h-full w-full object-fit"
+                    onError={(e) => {
+                      e.currentTarget.src = "";
+                      e.currentTarget.style.display = "none";
+                      if (e.currentTarget.parentElement) {
+                        e.currentTarget.parentElement.textContent = post.athlete.name.charAt(0);
+                      }
+                    }}
+                  />
+                ) : (
+                  post.athlete.name.charAt(0)
+                )}
               </div>
               <div className="flex-1">
                 <div className="flex items-center">
@@ -230,8 +202,23 @@ export default function LockerRoomPage() {
                   className="pl-4 border-l-2 border-muted mb-3"
                 >
                   <div className="flex items-center mb-1">
-                    <div className="h-6 w-6 rounded-full bg-muted flex items-center justify-center text-xs font-bold mr-2">
-                      {comment.athlete.name.charAt(0)}
+                    <div className="h-6 w-6 rounded-full bg-muted flex items-center justify-center text-xs font-bold mr-2 overflow-hidden">
+                      {comment.athlete.avatar ? (
+                        <img
+                          src={comment.athlete.avatar}
+                          alt={comment.athlete.name}
+                          className="h-full w-full object-fit"
+                          onError={(e) => {
+                            e.currentTarget.src = "";
+                            e.currentTarget.style.display = "none";
+                            if (e.currentTarget.parentElement) {
+                              e.currentTarget.parentElement.textContent = comment.athlete.name.charAt(0);
+                            }
+                          }}
+                        />
+                      ) : (
+                        comment.athlete.name.charAt(0)
+                      )}
                     </div>
                     <span className="text-sm font-medium">
                       {comment.athlete.name}

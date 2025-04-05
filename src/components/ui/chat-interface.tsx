@@ -7,9 +7,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Avatar } from "@/components/ui/avatar";
 import { Textarea } from "@/components/ui/textarea";
 import Markdown from "markdown-to-jsx";
-import { User } from "@deemlol/next-icons";
+import { User, ArrowUpCircle, Mic, Send } from "@deemlol/next-icons";
 import * as React from "react";
-import { ArrowUpCircle } from "@deemlol/next-icons";
 
 export default function ChatInterface() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -180,37 +179,56 @@ export default function ChatInterface() {
   }, []);
 
   return (
-    <div className="flex flex-col h-full w-full overflow-hidden max-w-2xl mx-auto">
+    <div className="flex flex-col h-full w-full overflow-hidden">
       {/* Chat messages */}
       <div
         ref={messageContainerRef}
         className="flex-1 overflow-y-auto p-4 w-full"
       >
         {messages.length === 0 && (
-          <div className="flex items-center justify-center h-full text-gray-400">
-            <p>Tell me about your goals!</p>
+          <div className="flex flex-col items-center justify-center h-full text-center space-y-3 text-muted-foreground">
+            <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-8 w-8 text-primary"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
+                />
+              </svg>
+            </div>
+            <div>
+              <p className="font-medium text-base">Your performance coach is ready</p>
+              <p className="text-sm">Ask about your training, goals, or mental preparation</p>
+            </div>
           </div>
         )}
 
         {messages.map((message) => (
           <div
             key={message.id}
-            className={`flex items-start gap-3 my-4  ${
+            className={`flex items-start gap-3 my-4 ${
               message.role === "user" ? "justify-end" : "justify-start"
             }`}
           >
             {message.role !== "user" && (
-              <Avatar className="h-8 w-8 ring-1 ring-slate-200/20 dark:ring-slate-700/30">
-                <div className="bg-primary/90 text-primary-foreground flex h-full w-full items-center justify-center rounded-full text-xs shadow-sm">
+              <Avatar className="h-8 w-8 border border-primary/20 shadow-sm">
+                <div className="bg-primary text-primary-foreground flex h-full w-full items-center justify-center rounded-full text-xs">
                   AI
                 </div>
               </Avatar>
             )}
             <Card
-              className={`max-w-[80%] md:max-w-[90%] shadow-sm border-0 ${
+              className={`max-w-[80%] md:max-w-[85%] shadow-sm border ${
                 message.role === "user"
-                  ? "bg-primary/90 text-primary-foreground"
-                  : "bg-muted/80 backdrop-blur-sm"
+                  ? "bg-primary text-primary-foreground border-primary/10"
+                  : "bg-card border-muted"
               }`}
             >
               <CardContent className="p-3">
@@ -234,9 +252,9 @@ export default function ChatInterface() {
               </CardContent>
             </Card>
             {message.role === "user" && (
-              <Avatar className="h-8 w-8 ring-1 ring-slate-200/20 dark:ring-slate-700/30">
-                <div className="bg-slate-300/90 dark:bg-slate-700/90 flex h-full w-full items-center justify-center rounded-full text-xs shadow-sm">
-                  <User className="h-4 w-4 text-white" />
+              <Avatar className="h-8 w-8 border border-muted shadow-sm">
+                <div className="bg-slate-200 dark:bg-slate-800 flex h-full w-full items-center justify-center rounded-full text-xs">
+                  <User className="h-4 w-4" />
                 </div>
               </Avatar>
             )}
@@ -245,22 +263,26 @@ export default function ChatInterface() {
 
         {isLoading && (
           <div className="flex items-center justify-start gap-3">
-            <Avatar className="h-8 w-8 ring-1 ring-slate-200/20 dark:ring-slate-700/30">
-              <div className="bg-primary/90 text-primary-foreground flex h-full w-full items-center justify-center rounded-full text-xs shadow-sm">
+            <Avatar className="h-8 w-8 border border-primary/20 shadow-sm">
+              <div className="bg-primary text-primary-foreground flex h-full w-full items-center justify-center rounded-full text-xs">
                 AI
               </div>
             </Avatar>
-            <Card className="max-w-[80%] md:max-w-[90%] bg-muted/80 backdrop-blur-sm border-0 shadow-sm">
+            <Card className="max-w-[80%] md:max-w-[85%] bg-card border-muted shadow-sm">
               <CardContent className="p-3">
-                <p className="animate-pulse">Thinking...</p>
+                <div className="flex items-center space-x-2">
+                  <div className="h-2 w-2 rounded-full bg-primary/60 animate-bounce [animation-delay:-0.3s]"></div>
+                  <div className="h-2 w-2 rounded-full bg-primary/60 animate-bounce [animation-delay:-0.15s]"></div>
+                  <div className="h-2 w-2 rounded-full bg-primary/60 animate-bounce"></div>
+                </div>
               </CardContent>
             </Card>
           </div>
         )}
 
         {error && (
-          <div className="rounded-lg border border-red-200/30 dark:border-red-900/30 bg-red-50/90 dark:bg-red-900/20 p-4 text-red-700 dark:text-red-400 text-sm shadow-sm backdrop-blur-sm">
-            Error: {error.message || "Something went wrong"}
+          <div className="rounded-lg border border-destructive/20 bg-destructive/10 p-4 text-destructive text-sm my-4 mx-auto max-w-[90%]">
+            Error: {error.message || "Something went wrong. Please try again."}
           </div>
         )}
 
@@ -269,17 +291,17 @@ export default function ChatInterface() {
       </div>
 
       {/* Message input - fixed position at bottom */}
-      <div className="border-t border-slate-200/10 dark:border-slate-700/30 p-4 w-full shadow-sm z-50 md:static md:border-t-0">
+      <div className="border-t p-4 w-full">
         <form
           onSubmit={onSubmit}
-          className="flex items-center gap-2 w-full max-w-xl mx-auto"
+          className="flex items-center gap-2 w-full"
           // disable native form submission
           onSubmitCapture={(e) => e.preventDefault()}
         >
           <Textarea
             ref={inputRef}
-            className="flex-1 rounded-lg border-slate-200/20 dark:border-slate-700/40 shadow-sm focus-visible:ring-1 focus-visible:ring-slate-300/50 dark:focus-visible:ring-slate-700/50"
-            placeholder="Type your message..."
+            className="flex-1 min-h-10 resize-none border rounded-lg focus-visible:ring-1 focus-visible:ring-ring"
+            placeholder="Ask about your training, goals, recovery..."
             value={input}
             onChange={handleInputChange}
             onKeyDown={handleKeyDown}
@@ -287,20 +309,30 @@ export default function ChatInterface() {
             spellCheck="true"
             style={{
               fontSize: "16px",
-              minHeight: "40px",
+              minHeight: "44px",
               maxHeight: "150px",
             }}
             rows={1}
           />
-          <Button
-            type="submit"
-            disabled={isLoading || !input.trim()}
-            className="rounded-lg shadow-sm h-10 px-3"
-            onClick={() => inputRef.current?.blur()} // Ensure keyboard is dismissed on mobile
-          >
-            <ArrowUpCircle className="h-6 w-6" />
-            <span className="sr-only">Send</span>
-          </Button>
+          <div className="flex space-x-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              className="rounded-full h-10 w-10 flex-shrink-0"
+            >
+              <Mic className="h-5 w-5" />
+              <span className="sr-only">Voice input</span>
+            </Button>
+            <Button
+              type="submit"
+              disabled={isLoading || !input.trim()}
+              className="rounded-full h-10 w-10 flex-shrink-0"
+            >
+              <Send className="h-5 w-5" />
+              <span className="sr-only">Send</span>
+            </Button>
+          </div>
         </form>
       </div>
     </div>

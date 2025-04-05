@@ -147,11 +147,11 @@ export default function ChatInterface() {
   }, []);
 
   return (
-    <div className="flex flex-col h-full w-full overflow-hidden">
+    <div className="flex flex-col h-full w-full overflow-hidden max-w-2xl mx-auto">
       {/* Chat messages */}
       <div
         ref={messageContainerRef}
-        className="flex-1 overflow-y-auto p-4 space-y-4 w-full pb-20"
+        className="flex-1 overflow-y-auto p-4  w-full pb-20"
       >
         {messages.length === 0 && (
           <div className="flex items-center justify-center h-full text-gray-400">

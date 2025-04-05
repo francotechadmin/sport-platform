@@ -60,11 +60,10 @@ export default function DashboardPage() {
 
   const inputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messageContainerRef = useRef<HTMLDivElement>(null);
 
-  // Scroll to bottom when messages change
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  // Get visible messages (non-system) for display
+  const visibleMessages = messages.filter((msg) => msg.role !== "system");
 
   useEffect(() => {
     // Check if the user has completed onboarding
@@ -181,9 +180,6 @@ export default function DashboardPage() {
     content:
       "Based on your recent performances, I recommend focusing on:\n- Improving running cadence (currently 162 SPM, target 175-180)\n- Adding one more recovery day to your weekly schedule",
   };
-
-  // Get visible messages (non-system) for display
-  const visibleMessages = messages.filter((msg) => msg.role !== "system");
 
   // If no visible messages, add default welcome
   const displayMessages =
@@ -317,7 +313,10 @@ export default function DashboardPage() {
             </div>
 
             {/* Chat Messages */}
-            <div className="bg-background/70 p-4 rounded-md mb-4 overflow-y-auto max-h-[300px]">
+            <div
+              ref={messageContainerRef}
+              className="bg-background/70 p-4 rounded-md mb-4 overflow-y-auto max-h-[300px]"
+            >
               <div className="space-y-4">
                 {displayMessages.map((message) => (
                   <div
@@ -411,12 +410,11 @@ export default function DashboardPage() {
               >
                 {isLoading ? (
                   <>
-                    <Loader className="mr-2 h-4 w-4 animate-spin" /> Thinking...
+                    <Loader className="h-4 w-4 animate-spin" />
                   </>
                 ) : (
                   <>
-                    <ArrowUpCircle className="mr-2 h-4 w-4" />
-                    Send
+                    <ArrowUpCircle className="h-4 w-4" />
                   </>
                 )}
               </Button>

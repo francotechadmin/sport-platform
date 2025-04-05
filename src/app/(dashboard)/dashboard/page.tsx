@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import {
   Card,
   CardContent,
@@ -20,10 +20,51 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import Link from "next/link";
+import { Loader, ArrowUpCircle, User } from "@deemlol/next-icons";
+import Markdown from "markdown-to-jsx";
+import { Avatar } from "@/components/ui/avatar";
+import { useChat } from "@ai-sdk/react";
 
 export default function DashboardPage() {
   const [showOnboarding, setShowOnboarding] = useState(false);
-  const [value, setValue] = useState(60);
+  const [progressValue, setProgressValue] = useState(60);
+
+  // Initialize chat with system message
+  const { messages, input, handleInputChange, handleSubmit, isLoading, error } =
+    useChat({
+      api: "/api/chat",
+      initialMessages: [
+        {
+          id: "system-1",
+          role: "system",
+          content:
+            "You are an AI sports coach helping athletes improve their performance. Be concise and actionable in your advice.",
+        },
+      ],
+      onResponse: (response) => {
+        console.log("Chat API response received:", {
+          status: response.status,
+          statusText: response.statusText,
+        });
+      },
+      onFinish: (message) => {
+        console.log("Chat message completed:", {
+          id: message.id,
+          role: message.role,
+        });
+      },
+      onError: (error) => {
+        console.error("Chat API error:", error);
+      },
+    });
+
+  const inputRef = useRef<HTMLInputElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Scroll to bottom when messages change
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
   useEffect(() => {
     // Check if the user has completed onboarding
@@ -36,7 +77,7 @@ export default function DashboardPage() {
 
     // Simulate progress animation
     const interval = setInterval(() => {
-      setValue((v) => (v >= 100 ? 100 : v + 1));
+      setProgressValue((v) => (v >= 100 ? 100 : v + 1));
     }, 100);
 
     return () => clearInterval(interval);
@@ -45,6 +86,17 @@ export default function DashboardPage() {
   const handleOnboardingComplete = () => {
     localStorage.setItem("hasCompletedOnboarding", "true");
     setShowOnboarding(false);
+  };
+
+  // Custom form submit handler
+  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    // Blur input to dismiss keyboard on mobile
+    inputRef.current?.blur();
+
+    // Use the SDK's handleSubmit
+    handleSubmit(e);
   };
 
   // Generate sample data for charts
@@ -121,6 +173,23 @@ export default function DashboardPage() {
       sentiment: "neutral",
     },
   ];
+
+  // Default welcome message if no history
+  const defaultWelcomeMessage = {
+    id: "welcome-message",
+    role: "assistant" as const,
+    content:
+      "Based on your recent performances, I recommend focusing on:\n- Improving running cadence (currently 162 SPM, target 175-180)\n- Adding one more recovery day to your weekly schedule",
+  };
+
+  // Get visible messages (non-system) for display
+  const visibleMessages = messages.filter((msg) => msg.role !== "system");
+
+  // If no visible messages, add default welcome
+  const displayMessages =
+    visibleMessages.length > 0
+      ? visibleMessages.slice(-3) // Only show last 3 messages
+      : [defaultWelcomeMessage];
 
   return (
     <div className="px-4 py-6 w-full">
@@ -232,7 +301,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Center Section: GPT Chat Input */}
+      {/* Center Section: Chat Module */}
       <div className="mb-8">
         <Card className="bg-muted/30 relative overflow-hidden border-primary/20">
           <CardContent className="p-6">
@@ -247,43 +316,111 @@ export default function DashboardPage() {
               </p>
             </div>
 
-            <div className="relative mb-4">
-              <Input
-                className="pr-24 py-6 text-base"
-                placeholder="Ask a question or start a reflection..."
-              />
-              <Button className="absolute right-1 top-1/2 transform -translate-y-1/2">
-                Ask AI
-              </Button>
-            </div>
+            {/* Chat Messages */}
+            <div className="bg-background/70 p-4 rounded-md mb-4 overflow-y-auto max-h-[300px]">
+              <div className="space-y-4">
+                {displayMessages.map((message) => (
+                  <div
+                    key={message.id}
+                    className={`flex items-start gap-3 ${
+                      message.role === "user" ? "justify-end" : "justify-start"
+                    }`}
+                  >
+                    {message.role !== "user" && (
+                      <Avatar className="h-8 w-8 ring-1 ring-slate-200/20 dark:ring-slate-700/30">
+                        <div className="bg-primary/90 text-primary-foreground flex h-full w-full items-center justify-center rounded-full text-xs shadow-sm">
+                          AI
+                        </div>
+                      </Avatar>
+                    )}
 
-            <div className="bg-background/70 p-4 rounded-md mb-4">
-              <div className="flex items-start gap-3">
-                <div className="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center text-primary text-sm font-bold">
-                  AI
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">
-                    Based on your recent performances, I recommend focusing on:
-                  </p>
-                  <ul className="text-sm mt-2 space-y-1">
-                    <li className="flex items-center gap-1">
-                      <div className="h-1.5 w-1.5 rounded-full bg-primary"></div>
-                      <span>
-                        Improving running cadence (currently 162 SPM, target
-                        175-180)
-                      </span>
-                    </li>
-                    <li className="flex items-center gap-1">
-                      <div className="h-1.5 w-1.5 rounded-full bg-primary"></div>
-                      <span>
-                        Adding one more recovery day to your weekly schedule
-                      </span>
-                    </li>
-                  </ul>
-                </div>
+                    <div
+                      className={`p-3 rounded-md max-w-[80%] ${
+                        message.role === "user"
+                          ? "bg-primary/90 text-primary-foreground"
+                          : "bg-muted/80 backdrop-blur-sm"
+                      }`}
+                    >
+                      <div className="prose prose-sm dark:prose-invert max-w-none">
+                        {message.parts?.map((part, i) => {
+                          if (part.type === "text") {
+                            return (
+                              <Markdown key={`${message.id}-${i}`}>
+                                {part.text}
+                              </Markdown>
+                            );
+                          }
+                          return null;
+                        }) || <Markdown>{message.content}</Markdown>}
+                      </div>
+                    </div>
+
+                    {message.role === "user" && (
+                      <Avatar className="h-8 w-8 ring-1 ring-slate-200/20 dark:ring-slate-700/30">
+                        <div className="bg-slate-300/90 dark:bg-slate-700/90 flex h-full w-full items-center justify-center rounded-full text-xs shadow-sm">
+                          <User className="h-4 w-4 text-white" />
+                        </div>
+                      </Avatar>
+                    )}
+                  </div>
+                ))}
+
+                {/* Loading state */}
+                {isLoading && (
+                  <div className="flex items-start gap-3 justify-start">
+                    <Avatar className="h-8 w-8 ring-1 ring-slate-200/20 dark:ring-slate-700/30">
+                      <div className="bg-primary/90 text-primary-foreground flex h-full w-full items-center justify-center rounded-full text-xs shadow-sm">
+                        AI
+                      </div>
+                    </Avatar>
+                    <div className="p-3 rounded-md max-w-[80%] bg-muted/80 backdrop-blur-sm">
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Loader className="h-4 w-4 animate-spin" />
+                        <span>Thinking...</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Error state */}
+                {error && (
+                  <div className="rounded-lg border border-red-200/30 dark:border-red-900/30 bg-red-50/90 dark:bg-red-900/20 p-4 text-red-700 dark:text-red-400 text-sm shadow-sm backdrop-blur-sm">
+                    Error: {error.message || "Something went wrong"}
+                  </div>
+                )}
+
+                {/* Reference for scrolling */}
+                <div ref={messagesEndRef} />
               </div>
             </div>
+
+            {/* Chat Input */}
+            <form onSubmit={onSubmit} className="relative mb-4">
+              <Input
+                ref={inputRef}
+                className="pr-24 py-6 text-base"
+                placeholder="Ask a question or start a reflection..."
+                value={input}
+                onChange={handleInputChange}
+                disabled={isLoading}
+              />
+              <Button
+                className="absolute right-1 top-1/2 transform -translate-y-1/2"
+                disabled={isLoading || !input.trim()}
+                type="submit"
+              >
+                {isLoading ? (
+                  <>
+                    <Loader className="mr-2 h-4 w-4 animate-spin" /> Thinking...
+                  </>
+                ) : (
+                  <>
+                    <ArrowUpCircle className="mr-2 h-4 w-4" />
+                    Send
+                  </>
+                )}
+              </Button>
+            </form>
 
             <div className="flex justify-end">
               <Button variant="outline" size="sm" asChild>
@@ -295,7 +432,7 @@ export default function DashboardPage() {
           <div className="absolute bottom-0 left-0 w-full h-1 bg-muted">
             <div
               className="h-full bg-primary"
-              style={{ width: `${value}%` }}
+              style={{ width: `${progressValue}%` }}
             ></div>
           </div>
         </Card>

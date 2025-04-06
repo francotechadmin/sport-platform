@@ -416,12 +416,7 @@ export default function ChatInterface() {
         ))}
         {isLoading && (
           <div className="flex items-center justify-start gap-3">
-            <Avatar className="h-8 w-8 border border-primary/20 shadow-sm">
-              <div className="bg-primary text-primary-foreground flex h-full w-full items-center justify-center rounded-full text-xs">
-                AI
-              </div>
-            </Avatar>
-            <Card className="max-w-[80%] md:max-w-[85%] bg-card border-muted shadow-sm">
+            <Card className="max-w-[80%] md:max-w-[85%] bg-card">
               <CardContent className="p-3">
                 <div className="flex items-center space-x-2">
                   <div className="h-2 w-2 rounded-full bg-primary/60 animate-bounce [animation-delay:-0.3s]"></div>

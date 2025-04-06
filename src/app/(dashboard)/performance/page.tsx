@@ -4,7 +4,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
-import { Badge } from "@/components/ui/badge";
 
 export default function PerformancePage() {
   return (
@@ -135,7 +134,7 @@ export default function PerformancePage() {
                 <h3 className="font-medium mb-2">Mantra</h3>
                 <div className="p-4 border border-dashed rounded-md bg-primary/5 text-center mb-2">
                   <blockquote className="text-lg font-medium italic">
-                    "I embrace the process and trust my training."
+                  &quot;I embrace the process and trust my training.&quot;
                   </blockquote>
                 </div>
                 <Button size="sm" variant="outline" className="w-full">Update Mantra</Button>

@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Avatar } from "@/components/ui/avatar";
 import { Textarea } from "@/components/ui/textarea";
 import Markdown from "markdown-to-jsx";
-import { User, ArrowUpCircle, Mic, Send } from "@deemlol/next-icons";
+import { User, ArrowUpCircle, Mic } from "@deemlol/next-icons";
 import * as React from "react";
 
 export default function ChatInterface() {
@@ -329,7 +329,7 @@ export default function ChatInterface() {
               disabled={isLoading || !input.trim()}
               className="rounded-full h-10 w-10 flex-shrink-0"
             >
-              <Send className="h-5 w-5" />
+              <ArrowUpCircle className="h-5 w-5" />
               <span className="sr-only">Send</span>
             </Button>
           </div>

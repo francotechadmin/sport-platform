@@ -237,11 +237,15 @@ export default function ChatInterface() {
     if (lastUserMessageIndex !== -1) {
       const lastUserMessage = [...messages].reverse()[lastUserMessageIndex];
 
+      const lastContent = lastUserMessage.parts
+        ? lastUserMessage.parts[0].text
+        : lastUserMessage.content;
+      if (!lastContent) return;
+
       // Set input to the last user message and submit
       handleInputChange({
         target: {
-          value:
-            lastUserMessage.parts?.[0]?.text || lastUserMessage.content || "",
+          value: lastContent,
         },
       } as React.ChangeEvent<HTMLTextAreaElement>);
 

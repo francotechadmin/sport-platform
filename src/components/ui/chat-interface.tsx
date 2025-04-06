@@ -19,6 +19,11 @@ import {
 } from "@deemlol/next-icons";
 import * as React from "react";
 
+// Define types for different message parts
+type TextUIPart = { type: "text"; text: string };
+type OtherUIPart = { type: string };
+type MessagePart = TextUIPart | OtherUIPart;
+
 export default function ChatInterface() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -194,13 +199,13 @@ export default function ChatInterface() {
     id: string;
     role: string;
     content?: string;
-    parts?: Array<{ type: string; text: string }>;
+    parts?: Array<MessagePart>;
   }) => {
     // Get text content from message
     let content = "";
     if (message.parts) {
       content = message.parts
-        .filter((part) => part.type === "text")
+        .filter((part): part is TextUIPart => part.type === "text")
         .map((part) => part.text)
         .join("\n");
     } else if (message.content) {
@@ -237,9 +242,20 @@ export default function ChatInterface() {
     if (lastUserMessageIndex !== -1) {
       const lastUserMessage = [...messages].reverse()[lastUserMessageIndex];
 
-      const lastContent = lastUserMessage.parts
-        ? lastUserMessage.parts[0].text
-        : lastUserMessage.content;
+      let lastContent = "";
+      // Extract text content from the message
+      if (lastUserMessage.parts && lastUserMessage.parts.length > 0) {
+        // Find the first text part
+        const textParts = lastUserMessage.parts.filter(
+          (part): part is TextUIPart => part.type === "text"
+        );
+        if (textParts.length > 0) {
+          lastContent = textParts[0].text;
+        }
+      } else if (lastUserMessage.content) {
+        lastContent = lastUserMessage.content;
+      }
+
       if (!lastContent) return;
 
       // Set input to the last user message and submit
@@ -312,7 +328,7 @@ export default function ChatInterface() {
                       if (part.type === "text") {
                         return (
                           <Markdown key={`${message.id}-${i}`}>
-                            {part.text}
+                            {(part as TextUIPart).text}
                           </Markdown>
                         );
                       }

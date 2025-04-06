@@ -27,9 +27,7 @@ export async function POST(req: Request) {
     }
 
     const result = streamText({
-      model: openai(
-        "ft:gpt-4o-2024-08-06:humanityai:proform-reflection-v8-deepmode:BI73k4sj"
-      ),
+      model: openai(process.env.OPEN_AI_MODEL || "gpt-4o"), // Default to gpt-4o if not specified
       messages,
     });
 

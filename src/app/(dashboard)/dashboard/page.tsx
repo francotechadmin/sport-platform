@@ -306,14 +306,6 @@ export default function DashboardPage() {
                       message.role === "user" ? "justify-end" : "justify-start"
                     }`}
                   >
-                    {message.role !== "user" && (
-                      <Avatar className="h-8 w-8 ring-1 ring-slate-200/20 dark:ring-slate-700/30">
-                        <div className="bg-primary/90 text-primary-foreground flex h-full w-full items-center justify-center rounded-full text-xs shadow-sm">
-                          AI
-                        </div>
-                      </Avatar>
-                    )}
-
                     <div
                       className={`p-3 rounded-md max-w-[80%] ${
                         message.role === "user"
@@ -339,11 +331,6 @@ export default function DashboardPage() {
                 {/* Loading state */}
                 {isLoading && (
                   <div className="flex items-start gap-3 justify-start">
-                    <Avatar className="h-8 w-8 ring-1 ring-slate-200/20 dark:ring-slate-700/30">
-                      <div className="bg-primary/90 text-primary-foreground flex h-full w-full items-center justify-center rounded-full text-xs shadow-sm">
-                        AI
-                      </div>
-                    </Avatar>
                     <div className="p-3 rounded-md max-w-[80%] bg-muted/80 backdrop-blur-sm">
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <Loader className="h-4 w-4 animate-spin" />

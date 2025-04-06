@@ -7,7 +7,16 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Avatar } from "@/components/ui/avatar";
 import { Textarea } from "@/components/ui/textarea";
 import Markdown from "markdown-to-jsx";
-import { User, ArrowUpCircle, Mic } from "@deemlol/next-icons";
+import {
+  User,
+  ArrowUpCircle,
+  Mic,
+  Copy,
+  ThumbsUp,
+  ThumbsDown,
+  RefreshCw,
+  Check,
+} from "@deemlol/next-icons";
 import * as React from "react";
 
 export default function ChatInterface() {
@@ -15,6 +24,10 @@ export default function ChatInterface() {
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const messageContainerRef = useRef<HTMLDivElement>(null);
   const [isMobile, setIsMobile] = useState<boolean>(false);
+  const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
+  const [feedbackMessages, setFeedbackMessages] = useState<
+    Record<string, "like" | "dislike" | null>
+  >({});
 
   const { messages, input, handleInputChange, handleSubmit, isLoading, error } =
     useChat({
@@ -118,8 +131,6 @@ export default function ChatInterface() {
 
   // Handle keydown for textarea with different behavior for desktop and mobile
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    console.log("Key pressed:", e.key);
-
     if (e.key === "Enter") {
       if (isMobile) {
         // On mobile: Enter always adds a newline, never submits
@@ -178,6 +189,70 @@ export default function ChatInterface() {
       "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover";
   }, []);
 
+  // Handle copy message content
+  const copyMessageContent = (message: {
+    id: string;
+    role: string;
+    content?: string;
+    parts?: Array<{ type: string; text: string }>;
+  }) => {
+    // Get text content from message
+    let content = "";
+    if (message.parts) {
+      content = message.parts
+        .filter((part) => part.type === "text")
+        .map((part) => part.text)
+        .join("\n");
+    } else if (message.content) {
+      content = message.content;
+    }
+
+    // Copy to clipboard
+    navigator.clipboard
+      .writeText(content)
+      .then(() => {
+        setCopiedMessageId(message.id);
+        setTimeout(() => setCopiedMessageId(null), 2000);
+      })
+      .catch((err) => console.error("Failed to copy: ", err));
+  };
+
+  // Handle message feedback
+  const handleFeedback = (messageId: string, type: "like" | "dislike") => {
+    setFeedbackMessages((prev) => {
+      // Toggle feedback if already selected
+      if (prev[messageId] === type) {
+        return { ...prev, [messageId]: null };
+      }
+      return { ...prev, [messageId]: type };
+    });
+  };
+
+  // Handle regenerate message
+  const regenerateMessage = () => {
+    // Find the last assistant message and regenerate
+    const lastUserMessageIndex = [...messages]
+      .reverse()
+      .findIndex((m) => m.role === "user");
+    if (lastUserMessageIndex !== -1) {
+      const lastUserMessage = [...messages].reverse()[lastUserMessageIndex];
+
+      // Set input to the last user message and submit
+      handleInputChange({
+        target: {
+          value:
+            lastUserMessage.parts?.[0]?.text || lastUserMessage.content || "",
+        },
+      } as React.ChangeEvent<HTMLTextAreaElement>);
+
+      // Small delay to ensure the input state is updated before submitting
+      setTimeout(() => {
+        const form = inputRef.current?.closest("form");
+        form?.requestSubmit();
+      }, 50);
+    }
+  };
+
   return (
     <div className="flex flex-col h-full w-full overflow-hidden">
       {/* Chat messages */}
@@ -204,12 +279,15 @@ export default function ChatInterface() {
               </svg>
             </div>
             <div>
-              <p className="font-medium text-base">Your performance coach is ready</p>
-              <p className="text-sm">Ask about your training, goals, or mental preparation</p>
+              <p className="font-medium text-base">
+                Your performance coach is ready
+              </p>
+              <p className="text-sm">
+                Ask about your training, goals, or mental preparation
+              </p>
             </div>
           </div>
         )}
-
         {messages.map((message) => (
           <div
             key={message.id}
@@ -217,40 +295,96 @@ export default function ChatInterface() {
               message.role === "user" ? "justify-end" : "justify-start"
             }`}
           >
-            {message.role !== "user" && (
-              <Avatar className="h-8 w-8 border border-primary/20 shadow-sm">
-                <div className="bg-primary text-primary-foreground flex h-full w-full items-center justify-center rounded-full text-xs">
-                  AI
-                </div>
-              </Avatar>
-            )}
-            <Card
-              className={`max-w-[80%] md:max-w-[85%] shadow-sm border ${
-                message.role === "user"
-                  ? "bg-primary text-primary-foreground border-primary/10"
-                  : "bg-card border-muted"
-              }`}
-            >
-              <CardContent className="p-3">
-                <div className="prose prose-sm dark:prose-invert max-w-none">
-                  {message.parts?.map((part, i) => {
-                    if (part.type === "text") {
-                      return (
-                        <Markdown key={`${message.id}-${i}`}>
-                          {part.text}
-                        </Markdown>
-                      );
-                    }
-                    return null;
-                  }) ||
-                    (message.content ? (
-                      <Markdown>{message.content}</Markdown>
+            <div className="flex flex-col">
+              <Card
+                className={`max-w-[80%] md:max-w-[85%] ${
+                  message.role === "user" &&
+                  "bg-primary text-primary-foreground border-primary/10 px-4 min-w-[60px]"
+                }`}
+              >
+                <CardContent className="border-none w-full">
+                  <div>
+                    {message.parts?.map((part, i) => {
+                      if (part.type === "text") {
+                        return (
+                          <Markdown key={`${message.id}-${i}`}>
+                            {part.text}
+                          </Markdown>
+                        );
+                      }
+                      return null;
+                    }) ||
+                      (message.content ? (
+                        <Markdown>{message.content}</Markdown>
+                      ) : (
+                        "[Empty response]"
+                      ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Message action buttons - only for assistant messages */}
+              {message.role === "assistant" && (
+                <div className="flex mt-0 gap-1 opacity-70 hover:opacity-100 transition-opacity">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7 rounded-full"
+                    onClick={() => copyMessageContent(message)}
+                    title="Copy message"
+                  >
+                    {copiedMessageId === message.id ? (
+                      <Check className="h-3.5 w-3.5" />
                     ) : (
-                      "[Empty response]"
-                    ))}
+                      <Copy className="h-3.5 w-3.5" />
+                    )}
+                  </Button>
+
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className={`h-7 w-7 rounded-full ${
+                      feedbackMessages[message.id] === "like"
+                        ? "bg-primary/20"
+                        : ""
+                    }`}
+                    onClick={() => handleFeedback(message.id, "like")}
+                    title="Thumbs up"
+                  >
+                    <ThumbsUp className="h-3.5 w-3.5" />
+                  </Button>
+
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className={`h-7 w-7 rounded-full ${
+                      feedbackMessages[message.id] === "dislike"
+                        ? "bg-primary/20"
+                        : ""
+                    }`}
+                    onClick={() => handleFeedback(message.id, "dislike")}
+                    title="Thumbs down"
+                  >
+                    <ThumbsDown className="h-3.5 w-3.5" />
+                  </Button>
+
+                  {message.id ===
+                    messages.filter((m) => m.role === "assistant").pop()
+                      ?.id && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7 rounded-full"
+                      onClick={regenerateMessage}
+                      title="Regenerate response"
+                      disabled={isLoading}
+                    >
+                      <RefreshCw className="h-3.5 w-3.5" />
+                    </Button>
+                  )}
                 </div>
-              </CardContent>
-            </Card>
+              )}
+            </div>
             {message.role === "user" && (
               <Avatar className="h-8 w-8 border border-muted shadow-sm">
                 <div className="bg-slate-200 dark:bg-slate-800 flex h-full w-full items-center justify-center rounded-full text-xs">
@@ -260,7 +394,6 @@ export default function ChatInterface() {
             )}
           </div>
         ))}
-
         {isLoading && (
           <div className="flex items-center justify-start gap-3">
             <Avatar className="h-8 w-8 border border-primary/20 shadow-sm">
@@ -279,13 +412,11 @@ export default function ChatInterface() {
             </Card>
           </div>
         )}
-
         {error && (
           <div className="rounded-lg border border-destructive/20 bg-destructive/10 p-4 text-destructive text-sm my-4 mx-auto max-w-[90%]">
             Error: {error.message || "Something went wrong. Please try again."}
           </div>
         )}
-
         {/* This empty div is used as a reference for scrolling to the bottom */}
         <div ref={messagesEndRef} />
       </div>

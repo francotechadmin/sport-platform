@@ -4,15 +4,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  MessageSquare,
-  Users,
-  Award as Medal,
-  Share2,
-  Link as LinkIcon,
-  ThumbsUp,
-} from "@deemlol/next-icons";
 
 export default function LockerRoomPage() {
   // Mock post data
@@ -89,40 +80,46 @@ export default function LockerRoomPage() {
   ];
 
   return (
-    <div className="p-6 bg-gradient-to-br from-blue-50/10 via-background to-background/95">
-      <div className="flex items-center gap-3 mb-8">
-        <Users className="w-6 h-6 text-muted-foreground" />
+    <div className="p-6">
+      <div className="flex items-center justify-between mb-8">
         <h1 className="text-3xl font-bold">Locker Room</h1>
-        <Badge
-          variant="outline"
-          className="ml-auto px-3 py-1 text-sm font-medium"
-        >
+        <Badge variant="outline" className="px-3 py-1 text-sm font-medium">
           Verified Athletes Only
         </Badge>
       </div>
 
       {/* New Post */}
-      <Card className="mb-8 bg-gradient-to-br from-blue-100/10 via-muted/30 to-transparent hover:shadow-lg transition-all duration-300">
+      <Card className="mb-8">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            Share with fellow athletes
-          </CardTitle>
+          <CardTitle>Share with fellow athletes</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            <Textarea
-              className="w-full min-h-[100px] resize-none border-border rounded-lg focus-visible:ring-ring focus-visible:border-ring bg-background"
+            <textarea
+              className="w-full p-3 min-h-[100px] rounded-md border border-input bg-transparent text-sm focus:outline-none"
               placeholder="Share your training insights, ask questions, or seek advice..."
-            />
+            ></textarea>
             <div className="flex justify-between items-center">
-              <Button variant="outline" size="sm" className="gap-2">
-                <LinkIcon className="h-4 w-4" />
-                Link Performance Data
-              </Button>
-              <Button className="gap-2">
-                <Share2 className="h-4 w-4" />
-                Post
-              </Button>
+              <div className="text-sm text-muted-foreground">
+                <span className="inline-flex items-center">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-4 w-4 mr-1"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M13 10V3L4 14h7v7l9-11h-7z"
+                    />
+                  </svg>
+                  Link to your performance data
+                </span>
+              </div>
+              <Button>Post</Button>
             </div>
           </div>
         </CardContent>
@@ -130,13 +127,10 @@ export default function LockerRoomPage() {
 
       {/* Feed */}
       {posts.map((post) => (
-        <Card
-          key={post.id}
-          className="mb-6 bg-gradient-to-br from-blue-100/5 via-muted/20 to-transparent hover:shadow-lg transition-all duration-300"
-        >
+        <Card key={post.id} className="mb-6">
           <CardContent className="pt-6">
             <div className="flex items-start space-x-4 mb-4">
-              <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center text-xl font-bold overflow-hidden border border-border">
+              <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center text-xl font-bold overflow-hidden">
                 {post.athlete.avatar ? (
                   <img
                     src={post.athlete.avatar}
@@ -146,8 +140,7 @@ export default function LockerRoomPage() {
                       e.currentTarget.src = "";
                       e.currentTarget.style.display = "none";
                       if (e.currentTarget.parentElement) {
-                        e.currentTarget.parentElement.textContent =
-                          post.athlete.name.charAt(0);
+                        e.currentTarget.parentElement.textContent = post.athlete.name.charAt(0);
                       }
                     }}
                   />
@@ -159,7 +152,20 @@ export default function LockerRoomPage() {
                 <div className="flex items-center">
                   <h3 className="font-semibold">{post.athlete.name}</h3>
                   {post.athlete.verified && (
-                    <Medal className="h-4 w-4 ml-1 text-primary" />
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-4 w-4 ml-1 text-primary"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+                      />
+                    </svg>
                   )}
                 </div>
                 <div className="text-sm text-muted-foreground">
@@ -173,7 +179,7 @@ export default function LockerRoomPage() {
 
             <p className="mb-4">{post.content}</p>
 
-            <div className="bg-blue-100/10 p-3 rounded-md text-sm mb-4">
+            <div className="bg-muted/30 p-3 rounded-md text-sm mb-4">
               <div className="font-medium mb-1">Linked Performance:</div>
               <div className="flex items-center justify-between">
                 <span>Distance: {post.performance.distance}</span>
@@ -182,9 +188,8 @@ export default function LockerRoomPage() {
             </div>
 
             {/* Comments section */}
-            <div className="mt-4 border-t border-border pt-4">
+            <div className="mt-4 border-t pt-4">
               <div className="flex items-center mb-3">
-                <MessageSquare className="h-4 w-4 mr-2" />
                 <h4 className="text-sm font-medium">Comments</h4>
                 <span className="ml-2 text-xs bg-muted px-1.5 py-0.5 rounded-full">
                   {post.comments.length}
@@ -197,7 +202,7 @@ export default function LockerRoomPage() {
                   className="pl-4 border-l-2 border-muted mb-3"
                 >
                   <div className="flex items-center mb-1">
-                    <div className="h-6 w-6 rounded-full bg-muted flex items-center justify-center text-xs font-bold mr-2 overflow-hidden border border-border">
+                    <div className="h-6 w-6 rounded-full bg-muted flex items-center justify-center text-xs font-bold mr-2 overflow-hidden">
                       {comment.athlete.avatar ? (
                         <img
                           src={comment.athlete.avatar}
@@ -207,8 +212,7 @@ export default function LockerRoomPage() {
                             e.currentTarget.src = "";
                             e.currentTarget.style.display = "none";
                             if (e.currentTarget.parentElement) {
-                              e.currentTarget.parentElement.textContent =
-                                comment.athlete.name.charAt(0);
+                              e.currentTarget.parentElement.textContent = comment.athlete.name.charAt(0);
                             }
                           }}
                         />
@@ -221,7 +225,6 @@ export default function LockerRoomPage() {
                     </span>
                     {comment.hasReflection ? (
                       <Badge variant="outline" className="ml-2 text-xs">
-                        <ThumbsUp className="h-3 w-3 mr-1" />
                         With Reflection
                       </Badge>
                     ) : (
@@ -240,10 +243,9 @@ export default function LockerRoomPage() {
               <div className="mt-3 flex">
                 <Input
                   placeholder="Add a comment (requires linking to your recent reflection)"
-                  className="mr-2 text-sm border-border focus-visible:ring-ring focus-visible:border-ring"
+                  className="mr-2 text-sm"
                 />
-                <Button variant="outline" size="sm" className="gap-2">
-                  <LinkIcon className="h-4 w-4" />
+                <Button variant="outline" size="sm">
                   Link & Post
                 </Button>
               </div>
@@ -253,8 +255,21 @@ export default function LockerRoomPage() {
       ))}
 
       <div className="text-center p-8">
-        <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-blue-100/10 mb-4">
-          <Users className="h-6 w-6 text-muted-foreground" />
+        <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-muted/30 mb-4">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-6 w-6 text-muted-foreground"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z"
+            />
+          </svg>
         </div>
         <p className="text-muted-foreground">
           End of feed. Check back later for more athlete insights.

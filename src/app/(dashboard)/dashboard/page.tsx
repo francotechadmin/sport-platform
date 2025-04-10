@@ -7,28 +7,150 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-  CardFooter,
 } from "@/components/ui/card";
-import {
-  ActivityChart,
-  generateRunningData,
-  generateTrainingIntensityData,
-} from "@/components/ui/activity-chart";
 import { OnboardingModal } from "@/components/ui/onboarding-modal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import Link from "next/link";
-import { Loader, ArrowUpCircle, User } from "@deemlol/next-icons";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Loader } from "@deemlol/next-icons";
 import Markdown from "markdown-to-jsx";
-import { Avatar } from "@/components/ui/avatar";
 import { useChat } from "@ai-sdk/react";
+import Link from "next/link";
+
+// Icons for different metrics
+const Icons = {
+  Performance: () => (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="w-5 h-5 text-emerald-500"
+    >
+      <path d="m22 12-4-4-8 8-4-4-4 4" />
+    </svg>
+  ),
+  Analytics: () => (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="w-5 h-5 text-blue-500"
+    >
+      <path d="M2 20h.01" />
+      <path d="M7 20v-4" />
+      <path d="M12 20v-8" />
+      <path d="M17 20V8" />
+      <path d="M22 4v16" />
+    </svg>
+  ),
+  Coach: () => (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="w-5 h-5 text-purple-500"
+    >
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+    </svg>
+  ),
+  Streak: () => (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="w-5 h-5 text-orange-500"
+    >
+      <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+    </svg>
+  ),
+  Recovery: () => (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="w-5 h-5 text-teal-500"
+    >
+      <path d="M18.364 5.636a9 9 0 0 1 0 12.728" />
+      <path d="M15.536 8.464a5 5 0 0 1 0 7.072" />
+      <path d="M13 12h.01" />
+    </svg>
+  ),
+  Focus: () => (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="w-5 h-5 text-rose-500"
+    >
+      <circle cx="12" cy="12" r="10" />
+      <circle cx="12" cy="12" r="6" />
+      <circle cx="12" cy="12" r="2" />
+    </svg>
+  ),
+  Session: () => (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="w-5 h-5 text-indigo-500"
+    >
+      <circle cx="12" cy="12" r="10" />
+      <polyline points="12 6 12 12 16 14" />
+    </svg>
+  ),
+};
+
+// Professional baselines for tooltips
+const proBaselines = {
+  performance:
+    "Elite athletes maintain scores above 90 through consistent training and recovery",
+  analytics: "Top performers track 5-7 key metrics daily for optimal progress",
+  coach: "Professional athletes receive daily guidance and feedback",
+  streak: "Elite athletes maintain 90%+ adherence to training schedules",
+  recovery: "Professional athletes achieve 95%+ recovery scores consistently",
+  focus: "Top performers maintain 9.5+ focus scores during training",
+  session: "Elite athletes complete 5-6 quality sessions per week",
+};
 
 export default function DashboardPage() {
   const [showOnboarding, setShowOnboarding] = useState(false);
 
   // Initialize chat with system message
-  const { messages, input, handleInputChange, handleSubmit, isLoading, error } =
+  const { messages, input, handleInputChange, handleSubmit, isLoading } =
     useChat({
       api: "/api/chat",
       initialMessages: [
@@ -71,432 +193,398 @@ export default function DashboardPage() {
   // Custom form submit handler
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    // Blur input to dismiss keyboard on mobile
     inputRef.current?.blur();
-
-    // Use the SDK's handleSubmit
     handleSubmit(e);
   };
-
-  // Generate sample data for charts
-  const runningData = generateRunningData();
-  const intensityData = generateTrainingIntensityData();
-
-  // Mock data for stats
-  const stats = {
-    streak: 7,
-    performanceImprovement: 12,
-    lastSession: "Yesterday",
-    totalSessions: 124,
-  };
-
-  // Mock data for recent logs
-  const recentLogs = [
-    {
-      id: 1,
-      type: "Run",
-      date: "Today",
-      duration: "45 min",
-      distance: "5.2 km",
-      intensity: "High",
-    },
-    {
-      id: 2,
-      type: "Swim",
-      date: "Yesterday",
-      duration: "30 min",
-      distance: "1.5 km",
-      intensity: "Medium",
-    },
-    {
-      id: 3,
-      type: "Strength",
-      date: "2 days ago",
-      duration: "60 min",
-      sets: "12",
-      intensity: "High",
-    },
-  ];
-
-  // Mock data for goals
-  const goals = [
-    {
-      id: 1,
-      title: "Weekly Running Distance",
-      current: 24,
-      target: 30,
-      unit: "km",
-    },
-    {
-      id: 2,
-      title: "Strength Sessions",
-      current: 2,
-      target: 3,
-      unit: "sessions",
-    },
-    { id: 3, title: "Active Recovery", current: 1, target: 2, unit: "days" },
-  ];
-
-  // Mock data for reflection highlights
-  const reflections = [
-    {
-      id: 1,
-      date: "Yesterday",
-      insight: "Noticed increased endurance after changing breathing pattern",
-      sentiment: "positive",
-    },
-    {
-      id: 2,
-      date: "3 days ago",
-      insight: "Struggled with motivation. Need to vary workout routine.",
-      sentiment: "neutral",
-    },
-  ];
 
   // Default welcome message if no history
   const defaultWelcomeMessage = {
     id: "welcome-message",
     role: "assistant" as const,
     content:
-      "Based on your recent performances, I recommend focusing on:\n- Improving running cadence (currently 162 SPM, target 175-180)\n- Adding one more recovery day to your weekly schedule",
+      "Welcome to your personalized dashboard! Here's your daily brief:\n\n- Your performance is trending upward (+4% this week)\n- Next scheduled session: High-intensity interval training\n- Focus area: Maintain 175-180 SPM running cadence",
   };
 
   // If no visible messages, add default welcome
   const displayMessages =
     visibleMessages.length > 0
-      ? visibleMessages.slice(-3) // Only show last 3 messages
+      ? visibleMessages.slice(-3)
       : [defaultWelcomeMessage];
 
   return (
-    <div className="px-4 py-6 w-full">
+    <div className="p-6 bg-gradient-to-br from-background to-background/95">
       {showOnboarding && (
         <OnboardingModal onComplete={handleOnboardingComplete} />
       )}
 
-      {/* Top Section: Stats Summary and Graph Module */}
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold mb-4">Welcome back, Athlete</h1>
-
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          {/* Stats summary cards */}
-          <Card>
-            <CardContent className="p-4 flex flex-col justify-center h-full">
-              <div className="text-sm text-muted-foreground">
-                Training Streak
-              </div>
-              <div className="flex items-baseline">
-                <span className="text-3xl font-bold">{stats.streak}</span>
-                <span className="ml-1 text-sm">days</span>
-              </div>
-              <div className="flex items-center mt-2">
-                <div className="w-full bg-muted h-1 rounded-full">
-                  <div
-                    className="bg-primary h-1 rounded-full"
-                    style={{ width: `${(stats.streak / 10) * 100}%` }}
-                  ></div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-4 flex flex-col justify-center h-full">
-              <div className="text-sm text-muted-foreground">
-                Performance Improvement
-              </div>
-              <div className="flex items-baseline">
-                <span className="text-3xl font-bold">
-                  +{stats.performanceImprovement}%
-                </span>
-              </div>
-              <div className="text-xs text-emerald-500 mt-2">
-                ↑ 4% from last week
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-4 flex flex-col justify-center h-full">
-              <div className="text-sm text-muted-foreground">Last Session</div>
-              <div className="flex items-baseline">
-                <span className="text-3xl font-bold">{stats.lastSession}</span>
-              </div>
-              <div className="text-xs text-muted-foreground mt-2">
-                45 min high intensity run
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-4 flex flex-col justify-center h-full">
-              <div className="text-sm text-muted-foreground">
-                Total Sessions
-              </div>
-              <div className="flex items-baseline">
-                <span className="text-3xl font-bold">
-                  {stats.totalSessions}
-                </span>
-              </div>
-              <div className="text-xs text-muted-foreground mt-2">
-                Since you started
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Graph module */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle>Training Progress</CardTitle>
-              <CardDescription>Last 7 days performance</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ActivityChart
-                type="line"
-                title="Weekly Performance"
-                data={runningData.data}
-                goal={runningData.goal}
-              />
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle>Areas to Improve</CardTitle>
-              <CardDescription>Focus on these metrics</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ActivityChart
-                type="bar"
-                title="Training Intensity (minutes)"
-                data={intensityData.data}
-              />
-            </CardContent>
-          </Card>
-        </div>
+      <div className="flex items-center gap-3 mb-8">
+        <Icons.Performance />
+        <h1 className="text-3xl font-bold">Welcome back, Athlete</h1>
       </div>
 
-      {/* Center Section: Chat Module */}
-      <div className="mb-8">
-        <Card className="bg-muted/30 relative overflow-hidden border-primary/20">
-          <CardContent className="p-6">
-            <div className="mb-4">
-              <div className="flex items-center gap-2 mb-1">
-                <div className="h-2 w-2 rounded-full bg-primary"></div>
-                <h3 className="font-semibold text-primary">AI Coach</h3>
+      {/* Key Metrics Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+        <Card className="bg-gradient-to-br from-orange-500/10 to-transparent hover:shadow-lg transition-all duration-300">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <Icons.Streak />
+                <span className="text-sm text-muted-foreground">
+                  Training Streak
+                </span>
               </div>
-              <p className="text-sm text-muted-foreground">
-                Ask me anything about your training or reflect on your
-                performance
-              </p>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Badge variant="outline" className="bg-orange-500/10">
+                      Target: 90%+
+                    </Badge>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{proBaselines.streak}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </div>
+            <div className="flex items-baseline">
+              <span className="text-3xl font-bold">7</span>
+              <span className="ml-1 text-sm text-muted-foreground">days</span>
+            </div>
+            <div className="mt-2 text-xs text-orange-500">
+              ↑ 2 days from last week
+            </div>
+          </CardContent>
+        </Card>
 
-            {/* Chat Messages */}
-            <div
-              ref={messageContainerRef}
-              className="bg-background/70 p-4 rounded-md mb-4 overflow-y-auto max-h-[300px]"
-            >
-              <div className="space-y-4">
-                {displayMessages.map((message) => (
-                  <div
-                    key={message.id}
-                    className={`flex items-start gap-3 ${
-                      message.role === "user" ? "justify-end" : "justify-start"
-                    }`}
-                  >
-                    <div
-                      className={`p-3 rounded-md max-w-[80%] ${
-                        message.role === "user"
-                          ? "bg-primary/90 text-primary-foreground"
-                          : "bg-muted/80 backdrop-blur-sm"
-                      }`}
-                    >
-                      <div className="prose prose-sm dark:prose-invert max-w-none">
-                        <Markdown>{message.content}</Markdown>
-                      </div>
-                    </div>
-
-                    {message.role === "user" && (
-                      <Avatar className="h-8 w-8 ring-1 ring-slate-200/20 dark:ring-slate-700/30">
-                        <div className="bg-slate-300/90 dark:bg-slate-700/90 flex h-full w-full items-center justify-center rounded-full text-xs shadow-sm">
-                          <User className="h-4 w-4 text-white" />
-                        </div>
-                      </Avatar>
-                    )}
-                  </div>
-                ))}
-
-                {/* Loading state */}
-                {isLoading && (
-                  <div className="flex items-start gap-3 justify-start">
-                    <div className="p-3 rounded-md max-w-[80%] bg-muted/80 backdrop-blur-sm">
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Loader className="h-4 w-4 animate-spin" />
-                        <span>Thinking...</span>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Error state */}
-                {error && (
-                  <div className="rounded-lg border border-red-200/30 dark:border-red-900/30 bg-red-50/90 dark:bg-red-900/20 p-4 text-red-700 dark:text-red-400 text-sm shadow-sm backdrop-blur-sm">
-                    Error: {error.message || "Something went wrong"}
-                  </div>
-                )}
-
-                {/* Reference for scrolling */}
-                <div ref={messagesEndRef} />
+        <Card className="bg-gradient-to-br from-teal-500/10 to-transparent hover:shadow-lg transition-all duration-300">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <Icons.Recovery />
+                <span className="text-sm text-muted-foreground">
+                  Recovery Score
+                </span>
               </div>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Badge variant="outline" className="bg-teal-500/10">
+                      Elite: 95%+
+                    </Badge>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{proBaselines.recovery}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </div>
+            <div className="flex items-baseline">
+              <span className="text-3xl font-bold">87%</span>
+            </div>
+            <div className="mt-2 text-xs text-teal-500">↑ 5% this week</div>
+          </CardContent>
+        </Card>
 
-            {/* Chat Input */}
-            <form onSubmit={onSubmit} className="relative mb-4">
-              <Input
-                ref={inputRef}
-                className="pr-24 py-6 text-base"
-                placeholder="Ask a question or start a reflection..."
-                value={input}
-                onChange={handleInputChange}
-                disabled={isLoading}
-              />
-              <Button
-                className="absolute right-1 top-1/2 transform -translate-y-1/2"
-                disabled={isLoading || !input.trim()}
-                type="submit"
+        <Card className="bg-gradient-to-br from-rose-500/10 to-transparent hover:shadow-lg transition-all duration-300">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <Icons.Focus />
+                <span className="text-sm text-muted-foreground">
+                  Focus Score
+                </span>
+              </div>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Badge variant="outline" className="bg-rose-500/10">
+                      Pro: 9.5+
+                    </Badge>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{proBaselines.focus}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+            <div className="flex items-baseline">
+              <span className="text-3xl font-bold">9.2</span>
+              <span className="ml-1 text-sm text-muted-foreground">/ 10</span>
+            </div>
+            <div className="mt-2 text-xs text-rose-500">
+              ↑ 0.3 from last session
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gradient-to-br from-indigo-500/10 to-transparent hover:shadow-lg transition-all duration-300">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <Icons.Session />
+                <span className="text-sm text-muted-foreground">
+                  Weekly Sessions
+                </span>
+              </div>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Badge variant="outline" className="bg-indigo-500/10">
+                      Goal: 5-6
+                    </Badge>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{proBaselines.session}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+            <div className="flex items-baseline">
+              <span className="text-3xl font-bold">4</span>
+              <span className="ml-1 text-sm text-muted-foreground">/ 6</span>
+            </div>
+            <div className="mt-2 text-xs text-indigo-500">
+              2 sessions remaining
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Link to detailed analytics */}
+      <div className="w-full mb-8 flex items-center justify-center">
+        <Link
+          href="/analytics"
+          className="text-sm text-blue-500 hover:underline flex items-center gap-2"
+        >
+          <Icons.Analytics />
+          View Detailed Analytics
+        </Link>
+      </div>
+
+      {/* AI Coach Section - Centerpiece */}
+      <Card className="bg-gradient-to-br from-purple-500/10 to-transparent hover:shadow-lg transition-all duration-300 mb-8">
+        <CardHeader>
+          <CardTitle className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Icons.Coach />
+              <span>AI Performance Coach</span>
+            </div>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Badge variant="outline" className="bg-purple-500/10">
+                    Daily Guidance
+                  </Badge>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{proBaselines.coach}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </CardTitle>
+          <CardDescription>
+            Get personalized advice and feedback
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div
+            ref={messageContainerRef}
+            className="space-y-4 mb-4"
+            style={{ minHeight: "200px" }}
+          >
+            {displayMessages.map((message) => (
+              <div
+                key={message.id}
+                className={`flex ${
+                  message.role === "user" ? "justify-end" : "justify-start"
+                }`}
               >
-                {isLoading ? (
-                  <>
-                    <Loader className="h-4 w-4 animate-spin" />
-                  </>
-                ) : (
-                  <>
-                    <ArrowUpCircle className="h-4 w-4" />
-                  </>
-                )}
-              </Button>
-            </form>
-
-            <div className="flex justify-end">
-              <Button variant="outline" size="sm" asChild>
-                <Link href="/chat">Open Full AI Coach</Link>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Bottom Section: Recent Logs, Goals, Reflections */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Recent Logs */}
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center justify-between">
-              <span>Recent Activities</span>
-              <Button variant="ghost" size="sm" className="text-xs" asChild>
-                <Link href="/performance">View All</Link>
-              </Button>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="max-h-[260px] overflow-y-auto">
-            <div className="space-y-3">
-              {recentLogs.map((log) => (
-                <div key={log.id} className="border-b pb-3 last:border-0">
-                  <div className="flex justify-between items-start mb-1">
-                    <div className="font-medium">{log.type}</div>
-                    <Badge variant="outline" className="text-xs">
-                      {log.date}
-                    </Badge>
-                  </div>
-                  <div className="text-sm text-muted-foreground flex justify-between">
-                    <span>{log.duration}</span>
-                    <span>{log.distance}</span>
-                    <span>Intensity: {log.intensity}</span>
-                  </div>
+                <div
+                  className={`rounded-lg p-4 max-w-[80%] ${
+                    message.role === "user"
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-purple-500/5 border border-purple-500/20"
+                  }`}
+                >
+                  <Markdown>{message.content}</Markdown>
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+              </div>
+            ))}
+            <div ref={messagesEndRef} />
+          </div>
 
-        {/* Quick Goals */}
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center justify-between">
-              <span>Weekly Goals</span>
-              <Button variant="ghost" size="sm" className="text-xs" asChild>
-                <Link href="/settings">Edit Goals</Link>
-              </Button>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {goals.map((goal) => (
-                <div key={goal.id}>
-                  <div className="flex justify-between items-center mb-1">
-                    <div className="text-sm font-medium">{goal.title}</div>
-                    <div className="text-sm">
-                      {goal.current}/{goal.target} {goal.unit}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-          <CardFooter>
-            <div className="text-xs text-center w-full text-muted-foreground">
-              You&apos;re on track to meet 2 of 3 weekly goals!
-            </div>
-          </CardFooter>
-        </Card>
-
-        {/* Reflection Highlights */}
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center justify-between">
-              <span>Reflection Highlights</span>
-              <Button variant="ghost" size="sm" className="text-xs" asChild>
-                <Link href="/chat">New Reflection</Link>
-              </Button>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {reflections.map((reflection) => (
-                <div key={reflection.id} className="bg-muted/20 p-3 rounded-md">
-                  <div className="flex items-center justify-between mb-2">
-                    <Badge variant="outline" className="text-xs">
-                      {reflection.date}
-                    </Badge>
-                    <div
-                      className={`h-2 w-2 rounded-full ${
-                        reflection.sentiment === "positive"
-                          ? "bg-emerald-500"
-                          : reflection.sentiment === "negative"
-                          ? "bg-red-500"
-                          : "bg-amber-500"
-                      }`}
-                    ></div>
-                  </div>
-                  <p className="text-sm">{reflection.insight}</p>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-          <CardFooter>
+          <form onSubmit={onSubmit} className="flex gap-2">
+            <Input
+              ref={inputRef}
+              value={input}
+              onChange={handleInputChange}
+              placeholder="Ask your AI coach for guidance..."
+              className="flex-1 border-purple-500/20 focus:border-purple-500/40 bg-purple-500/5"
+            />
             <Button
-              variant="ghost"
-              size="sm"
-              className="text-xs w-full"
-              asChild
+              type="submit"
+              className="bg-purple-500 hover:bg-purple-600"
+              disabled={isLoading}
             >
-              <Link href="/chat">View All Reflections</Link>
+              {isLoading ? <Loader className="w-4 h-4 animate-spin" /> : "Send"}
             </Button>
-          </CardFooter>
-        </Card>
-      </div>
+          </form>
+        </CardContent>
+        {/* link */}
+        <div className="w-full mt-4 flex items-center justify-center">
+          <Link
+            href="/chat"
+            className="text-sm text-blue-500 hover:underline flex items-center gap-2"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="w-4 h-4"
+            >
+              <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+              <polyline points="10 17 15 12 10 7" />
+              <line x1="15" y1="12" x2="3" y2="12" />
+            </svg>
+            Go to full chat experience
+          </Link>
+        </div>
+      </Card>
+
+      {/* Social Feed Section */}
+      <Card className="bg-gradient-to-br from-blue-500/10 to-transparent hover:shadow-lg transition-all duration-300">
+        <CardHeader>
+          <CardTitle className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="w-5 h-5 text-blue-500"
+              >
+                <path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+              <span>Athlete Community</span>
+            </div>
+            <Link
+              href="/locker-room"
+              className="text-sm text-blue-500 hover:underline"
+            >
+              View All
+            </Link>
+          </CardTitle>
+          <CardDescription>
+            Recent highlights from fellow athletes
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {/* Featured Post */}
+          <div className="mb-6 p-4 rounded-lg bg-card/50 border border-border/50">
+            <div className="flex items-start space-x-4 mb-3">
+              <div className="h-10 w-10 rounded-full bg-blue-500/10 flex items-center justify-center text-lg font-bold">
+                SJ
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <h3 className="font-semibold">Sarah Johnson</h3>
+                  <Badge variant="outline" className="text-xs">
+                    Marathon Runner
+                  </Badge>
+                </div>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Just hit a new PR in my 20-mile training run! The mental game
+                  was tough but pushed through. 💪
+                </p>
+                <div className="mt-2 text-xs text-muted-foreground flex items-center gap-4">
+                  <span>Distance: 20 miles</span>
+                  <span>Pace: 7:45 min/mile</span>
+                </div>
+              </div>
+            </div>
+            <div className="pl-14">
+              <div className="text-sm text-muted-foreground flex items-center gap-2 mb-2">
+                <span className="h-4 w-4 rounded-full bg-emerald-500/10 flex items-center justify-center">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="w-3 h-3 text-emerald-500"
+                  >
+                    <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
+                  </svg>
+                </span>
+                <span className="text-emerald-500">Performance Verified</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <Button variant="outline" size="sm" className="text-xs">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="w-4 h-4 mr-1"
+                  >
+                    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+                  </svg>
+                  Comment
+                </Button>
+                <Button variant="outline" size="sm" className="text-xs">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="w-4 h-4 mr-1"
+                  >
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="17 8 12 3 7 8" />
+                    <line x1="12" y1="3" x2="12" y2="15" />
+                  </svg>
+                  Share
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          {/* Quick Stats */}
+          <div className="grid grid-cols-3 gap-4 text-center">
+            <div className="p-3 rounded-lg bg-card/50 border border-border/50">
+              <div className="text-2xl font-bold text-blue-500">24</div>
+              <div className="text-xs text-muted-foreground">
+                Active Athletes
+              </div>
+            </div>
+            <div className="p-3 rounded-lg bg-card/50 border border-border/50">
+              <div className="text-2xl font-bold text-emerald-500">12</div>
+              <div className="text-xs text-muted-foreground">New PRs Today</div>
+            </div>
+            <div className="p-3 rounded-lg bg-card/50 border border-border/50">
+              <div className="text-2xl font-bold text-purple-500">5</div>
+              <div className="text-xs text-muted-foreground">
+                Training Groups
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

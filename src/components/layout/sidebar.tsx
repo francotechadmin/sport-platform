@@ -331,11 +331,11 @@ export function Sidebar({ title = "ProFormAi" }: SidebarProps) {
             Analytics
           </Link>
 
-          {/* Legacy - coming soon */}
+          {/* Locker Room */}
           <Link
-            href="/legacy"
+            href="/locker-room"
             className={`flex items-center px-3 py-2 rounded-lg transition-all duration-200 ${
-              isActive("/legacy")
+              isActive("/locker-room")
                 ? "bg-primary/90 text-primary-foreground shadow-sm"
                 : "hover:bg-muted/70"
             }`}

@@ -282,10 +282,10 @@ export default function ChatInterface() {
       >
         {messages.length === 0 && (
           <div className="flex flex-col items-center justify-center h-full text-center space-y-3 text-muted-foreground">
-            <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
+            <div className="h-16 w-16 rounded-full bg-muted flex items-center justify-center">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="h-8 w-8 text-primary"
+                className="h-8 w-8 text-muted-foreground"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -318,11 +318,12 @@ export default function ChatInterface() {
             <div className="flex flex-col">
               <Card
                 className={`max-w-[80%] md:max-w-[85%] ${
-                  message.role === "user" &&
-                  "bg-primary text-primary-foreground border-primary/10 px-4 min-w-[60px]"
+                  message.role === "user"
+                    ? "bg-primary text-primary-foreground border-primary/10"
+                    : "bg-muted border-border"
                 }`}
               >
-                <CardContent className="border-none w-full">
+                <CardContent className="border-none w-full p-4">
                   <div>
                     {message.parts?.map((part, i) => {
                       if (part.type === "text") {
@@ -345,47 +346,45 @@ export default function ChatInterface() {
 
               {/* Message action buttons - only for assistant messages */}
               {message.role === "assistant" && (
-                <div className="flex mt-0 gap-1 opacity-70 hover:opacity-100 transition-opacity">
+                <div className="flex mt-1 gap-1 opacity-70 hover:opacity-100 transition-opacity">
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-7 w-7 rounded-full"
+                    className="h-7 w-7 rounded-full hover:bg-muted"
                     onClick={() => copyMessageContent(message)}
                     title="Copy message"
                   >
                     {copiedMessageId === message.id ? (
-                      <Check className="h-3.5 w-3.5" />
+                      <Check className="h-3.5 w-3.5 text-muted-foreground" />
                     ) : (
-                      <Copy className="h-3.5 w-3.5" />
+                      <Copy className="h-3.5 w-3.5 text-muted-foreground" />
                     )}
                   </Button>
 
                   <Button
                     variant="ghost"
                     size="icon"
-                    className={`h-7 w-7 rounded-full ${
-                      feedbackMessages[message.id] === "like"
-                        ? "bg-primary/20"
-                        : ""
+                    className={`h-7 w-7 rounded-full hover:bg-muted ${
+                      feedbackMessages[message.id] === "like" ? "bg-muted" : ""
                     }`}
                     onClick={() => handleFeedback(message.id, "like")}
                     title="Thumbs up"
                   >
-                    <ThumbsUp className="h-3.5 w-3.5" />
+                    <ThumbsUp className="h-3.5 w-3.5 text-muted-foreground" />
                   </Button>
 
                   <Button
                     variant="ghost"
                     size="icon"
-                    className={`h-7 w-7 rounded-full ${
+                    className={`h-7 w-7 rounded-full hover:bg-muted ${
                       feedbackMessages[message.id] === "dislike"
-                        ? "bg-primary/20"
+                        ? "bg-muted"
                         : ""
                     }`}
                     onClick={() => handleFeedback(message.id, "dislike")}
                     title="Thumbs down"
                   >
-                    <ThumbsDown className="h-3.5 w-3.5" />
+                    <ThumbsDown className="h-3.5 w-3.5 text-muted-foreground" />
                   </Button>
 
                   {message.id ===
@@ -394,21 +393,21 @@ export default function ChatInterface() {
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-7 w-7 rounded-full"
+                      className="h-7 w-7 rounded-full hover:bg-muted"
                       onClick={regenerateMessage}
                       title="Regenerate response"
                       disabled={isLoading}
                     >
-                      <RefreshCw className="h-3.5 w-3.5" />
+                      <RefreshCw className="h-3.5 w-3.5 text-muted-foreground" />
                     </Button>
                   )}
                 </div>
               )}
             </div>
             {message.role === "user" && (
-              <Avatar className="h-8 w-8 border border-muted shadow-sm">
-                <div className="bg-slate-200 dark:bg-slate-800 flex h-full w-full items-center justify-center rounded-full text-xs">
-                  <User className="h-4 w-4" />
+              <Avatar className="h-8 w-8 border border-border shadow-sm">
+                <div className="bg-muted flex h-full w-full items-center justify-center rounded-full text-xs">
+                  <User className="h-4 w-4 text-muted-foreground" />
                 </div>
               </Avatar>
             )}
@@ -416,12 +415,12 @@ export default function ChatInterface() {
         ))}
         {isLoading && (
           <div className="flex items-center justify-start gap-3">
-            <Card className="max-w-[80%] md:max-w-[85%] bg-card">
+            <Card className="max-w-[80%] md:max-w-[85%] bg-muted border-border">
               <CardContent className="p-3">
                 <div className="flex items-center space-x-2">
-                  <div className="h-2 w-2 rounded-full bg-primary/60 animate-bounce [animation-delay:-0.3s]"></div>
-                  <div className="h-2 w-2 rounded-full bg-primary/60 animate-bounce [animation-delay:-0.15s]"></div>
-                  <div className="h-2 w-2 rounded-full bg-primary/60 animate-bounce"></div>
+                  <div className="h-2 w-2 rounded-full bg-foreground/30 animate-bounce [animation-delay:-0.3s]"></div>
+                  <div className="h-2 w-2 rounded-full bg-foreground/30 animate-bounce [animation-delay:-0.15s]"></div>
+                  <div className="h-2 w-2 rounded-full bg-foreground/30 animate-bounce"></div>
                 </div>
               </CardContent>
             </Card>
@@ -432,21 +431,19 @@ export default function ChatInterface() {
             Error: {error.message || "Something went wrong. Please try again."}
           </div>
         )}
-        {/* This empty div is used as a reference for scrolling to the bottom */}
         <div ref={messagesEndRef} />
       </div>
 
       {/* Message input - fixed position at bottom */}
-      <div className="border-t p-4 w-full">
+      <div className="border-t border-border p-4 w-full bg-muted/30">
         <form
           onSubmit={onSubmit}
           className="flex items-center gap-2 w-full"
-          // disable native form submission
           onSubmitCapture={(e) => e.preventDefault()}
         >
           <Textarea
             ref={inputRef}
-            className="flex-1 min-h-10 resize-none border rounded-lg focus-visible:ring-1 focus-visible:ring-ring"
+            className="flex-1 min-h-10 resize-none border-border rounded-lg focus-visible:ring-ring focus-visible:border-ring bg-background"
             placeholder="Ask about your training, goals, recovery..."
             value={input}
             onChange={handleInputChange}
@@ -465,7 +462,7 @@ export default function ChatInterface() {
               type="button"
               variant="outline"
               size="icon"
-              className="rounded-full h-10 w-10 flex-shrink-0"
+              className="rounded-full h-10 w-10 flex-shrink-0 border-border hover:bg-muted"
             >
               <Mic className="h-5 w-5" />
               <span className="sr-only">Voice input</span>

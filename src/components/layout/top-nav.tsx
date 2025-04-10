@@ -1,12 +1,35 @@
 "use client";
 
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Bell, MessageSquare, User } from "@deemlol/next-icons";
 import { ModeToggle } from "@/components/theme-toggle";
 
 export function TopNav() {
+  const [isVisible, setIsVisible] = useState(true);
+  const prevScrollPos = useRef(0);
+
+  useEffect(() => {
+    const mainElement = document.querySelector("main");
+    if (!mainElement) return;
+
+    const handleScroll = () => {
+      const currentScrollPos = mainElement.scrollTop;
+      setIsVisible(
+        prevScrollPos.current > currentScrollPos || currentScrollPos < 10
+      );
+      prevScrollPos.current = currentScrollPos;
+    };
+
+    mainElement.addEventListener("scroll", handleScroll, { passive: true });
+    return () => mainElement.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
-    <div className="h-16 border-b border-slate-200/10 dark:border-slate-700/30 bg-background/95 backdrop-blur-sm">
+    <div
+      style={{ transform: isVisible ? "translateY(0)" : "translateY(-100%)" }}
+      className="fixed top-0 right-0 h-16 border-b border-slate-200/10 dark:border-slate-700/30 bg-background/95 backdrop-blur-sm z-50 transition-transform duration-300 ml-[280px] w-[calc(100%-280px)]"
+    >
       <div className="flex items-center justify-between h-full px-4">
         <div className="flex items-center">
           <span className="text-sm text-muted-foreground">

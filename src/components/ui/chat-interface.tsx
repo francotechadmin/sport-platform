@@ -34,6 +34,7 @@ export default function ChatInterface() {
     Record<string, "like" | "dislike" | null>
   >({});
 
+  // Initialize chat with system message
   const { messages, input, handleInputChange, handleSubmit, isLoading, error } =
     useChat({
       api: "/api/chat",
@@ -41,14 +42,12 @@ export default function ChatInterface() {
         console.log("Chat API response received:", {
           status: response.status,
           statusText: response.statusText,
-          headers: Object.fromEntries([...response.headers.entries()]),
         });
       },
       onFinish: (message) => {
-        console.log("Chat API stream finished:", {
-          messageId: message.id,
+        console.log("Chat message completed:", {
+          id: message.id,
           role: message.role,
-          contentParts: message.parts?.length || 0,
         });
       },
       onError: (error) => {

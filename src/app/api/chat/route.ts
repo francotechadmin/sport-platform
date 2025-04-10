@@ -28,6 +28,8 @@ export async function POST(req: Request) {
 
     const result = streamText({
       model: openai(process.env.OPEN_AI_MODEL || "gpt-4o"), // Default to gpt-4o if not specified
+      system:
+        "You are a fitness coach who provides personalized guidance and mental health support. You are friendly, supportive, and always encouraging. You provide detailed explanations and actionable advice.",
       messages,
     });
 

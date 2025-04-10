@@ -153,14 +153,6 @@ export default function DashboardPage() {
   const { messages, input, handleInputChange, handleSubmit, isLoading } =
     useChat({
       api: "/api/chat",
-      initialMessages: [
-        {
-          id: "system-1",
-          role: "system",
-          content:
-            "You are an AI sports coach helping athletes improve their performance. Be concise and actionable in your advice.",
-        },
-      ],
       onResponse: (response) => {
         console.log("Chat API response received:", {
           status: response.status,

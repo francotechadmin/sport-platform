@@ -120,6 +120,36 @@ const Icons = {
       <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
     </svg>
   ),
+  Target: ({ className }: { className?: string }) => (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className || "w-4 h-4"}
+    >
+      <circle cx="12" cy="12" r="10" />
+      <circle cx="12" cy="12" r="6" />
+      <circle cx="12" cy="12" r="2" />
+    </svg>
+  ),
+  Check: ({ className }: { className?: string }) => (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className || "w-4 h-4"}
+    >
+      <polyline points="20 6 9 17 4 12" />
+    </svg>
+  ),
 };
 
 // Professional baselines for tooltips
@@ -132,6 +162,23 @@ const proBaselines = {
   sleep: "8-10 hours of quality sleep is crucial for elite performance",
   mood: "Maintaining 80%+ positive mood correlates with peak performance",
   goals: "Focus on 2-3 specific, measurable goals in 4-6 week cycles",
+  recovery: {
+    mood: {
+      pro: "90%+",
+      good: "80-89%",
+      info: "Elite athletes maintain 90%+ positive mood for optimal performance",
+    },
+    sleepQuality: {
+      pro: "95%+",
+      good: "85-94%",
+      info: "Professional athletes achieve 95%+ sleep quality through consistent routines",
+    },
+    sleepDuration: {
+      pro: "8-10 hrs",
+      good: "7-8 hrs",
+      info: "Elite performers consistently get 8-10 hours of quality sleep",
+    },
+  },
 };
 
 export default function PerformancePage() {
@@ -322,65 +369,59 @@ export default function PerformancePage() {
           <CardContent>
             <div className="space-y-6">
               <div>
-                <div className="flex justify-between items-center mb-2">
+                <div className="flex justify-between items-center mb-4">
                   <h3 className="font-medium">Mood</h3>
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <span className="text-blue-500 font-medium">87%</span>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>{proBaselines.mood}</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
+                  <span className="text-blue-500 font-medium">87%</span>
                 </div>
-                <Slider
-                  defaultValue={[87]}
-                  max={100}
-                  step={1}
-                  className="accent-blue-500"
-                />
-                <div className="flex justify-between text-xs text-muted-foreground mt-1">
-                  <span>Low</span>
-                  <span>Medium</span>
-                  <span>High</span>
+                <div className="relative">
+                  <Slider
+                    defaultValue={[87]}
+                    max={100}
+                    step={1}
+                    className="accent-blue-500"
+                  />
+                  <div className="absolute top-0 right-[10%] w-px h-4 bg-emerald-500/50 -translate-y-2" />
+                </div>
+                <div className="flex justify-end text-xs mt-1">
+                  <span className="text-emerald-500">Pro: 90%+</span>
                 </div>
               </div>
 
               <div>
-                <div className="flex justify-between items-center mb-2">
+                <div className="flex justify-between items-center mb-4">
                   <h3 className="font-medium">Sleep Quality</h3>
                   <span className="text-blue-500 font-medium">74%</span>
                 </div>
-                <Slider
-                  defaultValue={[74]}
-                  max={100}
-                  step={1}
-                  className="accent-blue-500"
-                />
-                <div className="flex justify-between text-xs text-muted-foreground mt-1">
-                  <span>Poor</span>
-                  <span>Average</span>
-                  <span>Excellent</span>
+                <div className="relative">
+                  <Slider
+                    defaultValue={[74]}
+                    max={100}
+                    step={1}
+                    className="accent-blue-500"
+                  />
+                  <div className="absolute top-0 right-[5%] w-px h-4 bg-emerald-500/50 -translate-y-2" />
+                </div>
+                <div className="flex justify-end text-xs mt-1">
+                  <span className="text-emerald-500">Pro: 95%+</span>
                 </div>
               </div>
 
               <div>
-                <div className="flex justify-between items-center mb-2">
+                <div className="flex justify-between items-center mb-4">
                   <h3 className="font-medium">Sleep Duration</h3>
                   <span className="text-blue-500 font-medium">7.5 hrs</span>
                 </div>
-                <Slider
-                  defaultValue={[75]}
-                  max={100}
-                  step={1}
-                  className="accent-blue-500"
-                />
-                <div className="flex justify-between text-xs text-muted-foreground mt-1">
-                  <span>{"<6h"}</span>
-                  <span>7-8h</span>
-                  <span>9h+</span>
+                <div className="relative">
+                  <Slider
+                    defaultValue={[75]}
+                    max={100}
+                    step={1}
+                    className="accent-blue-500"
+                  />
+                  <div className="absolute top-0 right-[20%] w-px h-4 bg-emerald-500/50 -translate-y-2" />
+                </div>
+                <div className="flex justify-end text-xs mt-1">
+                  <span className="text-emerald-500">Pro: 8-10 hrs</span>
                 </div>
               </div>
             </div>

@@ -18,6 +18,7 @@ import {
   Check,
 } from "@deemlol/next-icons";
 import * as React from "react";
+import { cn } from "@/lib/utils";
 
 // Define types for different message parts
 type TextUIPart = { type: "text"; text: string };
@@ -319,11 +320,14 @@ export default function ChatInterface() {
               <Card
                 className={`max-w-[80%] md:max-w-[85%] ${
                   message.role === "user"
-                    ? "bg-primary text-primary-foreground border-primary/10"
-                    : "bg-muted border-border"
+                    ? "bg-primary text-primary-foreground border-primary/10 py-0"
+                    : "bg-transparent border-none shadow-none p-0 w-full"
                 }`}
               >
-                <CardContent className="border-none w-full p-4">
+                <CardContent
+                  className={`border-none w-full p-4 
+                  ${message.role === "user" ? "bg-primary/10" : "p-2"}`}
+                >
                   <div>
                     {message.parts?.map((part, i) => {
                       if (part.type === "text") {
@@ -415,7 +419,7 @@ export default function ChatInterface() {
         ))}
         {isLoading && (
           <div className="flex items-center justify-start gap-3">
-            <Card className="max-w-[80%] md:max-w-[85%] bg-muted border-border">
+            <Card className="max-w-[80%] md:max-w-[85%] bg-transparent border-none shadow-none p-0">
               <CardContent className="p-3">
                 <div className="flex items-center space-x-2">
                   <div className="h-2 w-2 rounded-full bg-foreground/30 animate-bounce [animation-delay:-0.3s]"></div>

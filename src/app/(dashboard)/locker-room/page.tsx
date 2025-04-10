@@ -140,7 +140,8 @@ export default function LockerRoomPage() {
                       e.currentTarget.src = "";
                       e.currentTarget.style.display = "none";
                       if (e.currentTarget.parentElement) {
-                        e.currentTarget.parentElement.textContent = post.athlete.name.charAt(0);
+                        e.currentTarget.parentElement.textContent =
+                          post.athlete.name.charAt(0);
                       }
                     }}
                   />
@@ -212,7 +213,8 @@ export default function LockerRoomPage() {
                             e.currentTarget.src = "";
                             e.currentTarget.style.display = "none";
                             if (e.currentTarget.parentElement) {
-                              e.currentTarget.parentElement.textContent = comment.athlete.name.charAt(0);
+                              e.currentTarget.parentElement.textContent =
+                                comment.athlete.name.charAt(0);
                             }
                           }}
                         />

@@ -183,7 +183,7 @@ const proBaselines = {
 
 export default function PerformancePage() {
   return (
-    <div className="p-6 bg-gradient-to-br from-background to-background/95">
+    <div className="mt-16 p-6 bg-gradient-to-br from-background to-background/95">
       <div className="flex items-center gap-3 mb-8">
         <Icons.Physical />
         <h1 className="text-3xl font-bold">Performance Logs</h1>

@@ -28,7 +28,7 @@ export function TopNav() {
   return (
     <div
       style={{ transform: isVisible ? "translateY(0)" : "translateY(-100%)" }}
-      className="fixed top-0 right-0 h-16 border-b border-slate-200/10 dark:border-slate-700/30 bg-background/95 backdrop-blur-sm z-50 transition-transform duration-300 ml-[280px] w-[calc(100%-280px)]"
+      className="hidden md:block fixed top-0 right-0 h-16 border-b border-slate-200/10 dark:border-slate-700/30 bg-background/95 backdrop-blur-sm z-35 transition-transform duration-300 ml-[255px] w-[calc(100%-255px)]"
     >
       <div className="flex items-center justify-between h-full px-4">
         <div className="flex items-center">

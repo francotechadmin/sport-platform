@@ -368,10 +368,12 @@ export default function AnalyticsPage() {
   const performanceData = generateRunningData(7, 30);
 
   return (
-    <div className="p-6 bg-gradient-to-br from-background to-background/95">
+    <div className="mt-16 p-6 bg-gradient-to-br from-background to-background/95">
       <div className="flex items-center gap-3 mb-8">
         <Icons.Performance />
-        <h1 className="text-3xl font-bold">Performance Analytics</h1>
+        <h1 className="text-2xl md:text-3xl font-bold">
+          Performance Analytics
+        </h1>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">

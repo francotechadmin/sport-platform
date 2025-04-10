@@ -212,14 +212,14 @@ export default function DashboardPage() {
       : [defaultWelcomeMessage];
 
   return (
-    <div className="p-6 bg-gradient-to-br from-background to-background/95">
+    <div className="mt-16 p-6 bg-gradient-to-br from-background to-background/95">
       {showOnboarding && (
         <OnboardingModal onComplete={handleOnboardingComplete} />
       )}
 
       <div className="flex items-center gap-3 mb-8">
         <Icons.Performance />
-        <h1 className="text-3xl font-bold">Welcome back, Athlete</h1>
+        <h1 className="text-3xl font-bold">Dashboard</h1>
       </div>
 
       {/* Key Metrics Cards */}

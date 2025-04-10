@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function ChatPage() {
   return (
-    <div className="p-6 bg-gradient-to-br from-background to-background/95">
+    <div className="mt-16 p-6 bg-gradient-to-br from-background to-background/95">
       <div className="flex items-center gap-3 mb-8">
         <svg
           xmlns="http://www.w3.org/2000/svg"

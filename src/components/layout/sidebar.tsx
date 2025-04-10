@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,8 @@ interface SidebarProps {
 export function Sidebar({ title = "ProFormAi" }: SidebarProps) {
   const pathname = usePathname();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
+  const prevScrollPos = useRef(0);
   const { theme } = useTheme();
   const [isDarkTheme, setIsDarkTheme] = useState(false);
 
@@ -26,6 +28,23 @@ export function Sidebar({ title = "ProFormAi" }: SidebarProps) {
         window.matchMedia("(prefers-color-scheme: dark)").matches);
     setIsDarkTheme(isDark);
   }, [theme]);
+
+  // Handle scroll visibility
+  useEffect(() => {
+    const mainElement = document.querySelector("main");
+    if (!mainElement) return;
+
+    const handleScroll = () => {
+      const currentScrollPos = mainElement.scrollTop;
+      setIsVisible(
+        prevScrollPos.current > currentScrollPos || currentScrollPos < 10
+      );
+      prevScrollPos.current = currentScrollPos;
+    };
+
+    mainElement.addEventListener("scroll", handleScroll, { passive: true });
+    return () => mainElement.removeEventListener("scroll", handleScroll);
+  }, []);
 
   // Close sidebar when pathname changes (navigation occurs)
   useEffect(() => {
@@ -60,7 +79,10 @@ export function Sidebar({ title = "ProFormAi" }: SidebarProps) {
   return (
     <>
       {/* Mobile Header */}
-      <div className="md:hidden fixed top-0 left-0 right-0 z-20 border-b border-slate-200/10 dark:border-slate-700/30 shadow-sm bg-background/95 backdrop-blur-sm">
+      <div
+        style={{ transform: isVisible ? "translateY(0)" : "translateY(-100%)" }}
+        className="md:hidden fixed top-0 left-0 right-0 z-20 border-b border-slate-200/10 dark:border-slate-700/30 shadow-sm bg-background/95 backdrop-blur-sm transition-transform duration-300"
+      >
         <div className="flex flex-col">
           <div className="flex items-center justify-between p-4">
             <Link

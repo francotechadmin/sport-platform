@@ -18,7 +18,6 @@ import {
   Check,
 } from "@deemlol/next-icons";
 import * as React from "react";
-import { cn } from "@/lib/utils";
 
 // Define types for different message parts
 type TextUIPart = { type: "text"; text: string };
@@ -318,17 +317,17 @@ export default function ChatInterface() {
           >
             <div className="flex flex-col">
               <Card
-                className={`max-w-[80%] md:max-w-[85%] ${
+                className={`${
                   message.role === "user"
                     ? "bg-primary text-primary-foreground border-primary/10 py-0"
-                    : "bg-transparent border-none shadow-none p-0 w-full"
+                    : "bg-transparent border-none shadow-none p-0"
                 }`}
               >
                 <CardContent
-                  className={`border-none w-full p-4 
+                  className={`border-none p-4 inline-block 
                   ${message.role === "user" ? "bg-primary/10" : "p-2"}`}
                 >
-                  <div>
+                  <div className="whitespace-pre-wrap break-words">
                     {message.parts?.map((part, i) => {
                       if (part.type === "text") {
                         return (

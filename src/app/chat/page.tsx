@@ -19,7 +19,7 @@ export default function ChatPage() {
         >
           <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
         </svg>
-        <h1 className="text-3xl font-bold">AI Performance Coach</h1>
+        <h1 className="text-2xl md:text-3xl font-bold">AI Performance Coach</h1>
       </div>
 
       <Card className="bg-gradient-to-br from-purple-500/10 to-transparent hover:shadow-lg transition-all duration-300">
@@ -32,7 +32,7 @@ export default function ChatPage() {
           </CardTitle>
         </CardHeader>
         <CardContent className="p-0 border-t border-purple-500/20">
-          <div className="h-[calc(100vh-350px)]">
+          <div className="h-[55dvh] md:h-[60dvh] overflow-hidden">
             <ChatInterface />
           </div>
         </CardContent>

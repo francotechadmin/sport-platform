@@ -150,7 +150,7 @@ export function Sidebar({ title = "ProFormAi" }: SidebarProps) {
           fixed top-0 left-0 z-40 h-full w-64 border-r border-slate-200/10 dark:border-slate-700/30 shadow-sm flex flex-col transform transition-transform duration-200 ease-in-out
           md:translate-x-0 bg-background/95 backdrop-blur-sm
           ${isMobileOpen ? "translate-x-0" : "-translate-x-full"}
-          md:static md:z-0
+          md:static
         `}
       >
         {/* Desktop header - hidden on mobile */}

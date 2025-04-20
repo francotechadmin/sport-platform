@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -202,6 +202,16 @@ export default function DashboardPage() {
     visibleMessages.length > 0
       ? visibleMessages.slice(-3)
       : [defaultWelcomeMessage];
+
+  // check onboarding
+  useEffect(() => {
+    const hasCompletedOnboarding = localStorage.getItem(
+      "hasCompletedOnboarding"
+    );
+    if (!hasCompletedOnboarding) {
+      setShowOnboarding(true);
+    }
+  }, []);
 
   return (
     <div className="mt-16 p-6 bg-gradient-to-br from-background to-background/95">

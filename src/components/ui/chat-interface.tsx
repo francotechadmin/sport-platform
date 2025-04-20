@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useChat } from "@ai-sdk/react";
+import { useChat, Message } from "@ai-sdk/react";
+import { ChatMessage, getUserSelfDescription } from "@/lib/chat-storage";
+import { useConversation } from "@/lib/conversation-context";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar } from "@/components/ui/avatar";
@@ -34,26 +36,157 @@ export default function ChatInterface() {
     Record<string, "like" | "dislike" | null>
   >({});
 
-  // Initialize chat with system message
-  const { messages, input, handleInputChange, handleSubmit, isLoading, error } =
-    useChat({
-      api: "/api/chat",
-      onResponse: (response) => {
-        console.log("Chat API response received:", {
-          status: response.status,
-          statusText: response.statusText,
-        });
-      },
-      onFinish: (message) => {
-        console.log("Chat message completed:", {
-          id: message.id,
-          role: message.role,
-        });
-      },
-      onError: (error) => {
-        console.error("Chat API error:", error);
-      },
-    });
+  // Get conversation data from context
+  const {
+    currentConversation: conversation,
+    currentConversationId,
+    updateConversation,
+    refreshConversations,
+  } = useConversation();
+
+  // Ensure we have a conversation - only run once, minimal logging
+  const initializedRef = useRef(false);
+
+  useEffect(() => {
+    // Skip if already initialized
+    if (initializedRef.current) return;
+    initializedRef.current = true;
+
+    // If we don't have a conversation, create one
+    if (!conversation && !currentConversationId) {
+      // Create a new conversation directly
+      const newConversation = {
+        id: crypto.randomUUID(),
+        title: "New Conversation",
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        messages: [],
+      };
+
+      // Save it directly to localStorage
+      try {
+        localStorage.setItem("chat_history", JSON.stringify([newConversation]));
+
+        // Force a single refresh
+        setTimeout(() => {
+          refreshConversations();
+        }, 300);
+      } catch (error) {
+        console.error("Error saving new conversation directly:", error);
+      }
+    }
+  }, [conversation, currentConversationId, refreshConversations]);
+
+  // Convert ChatMessage[] to Message[] for useChat
+  const convertToUIChatMessages = (chatMessages: ChatMessage[]): Message[] => {
+    return chatMessages.map((msg) => ({
+      id: msg.id,
+      role: msg.role,
+      content: msg.content,
+      parts: msg.parts,
+    })) as Message[];
+  };
+
+  // Convert Message[] to ChatMessage[] for storage
+  const convertToChatMessages = (uiMessages: Message[]): ChatMessage[] => {
+    return uiMessages.map((msg) => ({
+      id: msg.id,
+      role: msg.role,
+      content: msg.content,
+      parts: msg.parts,
+    })) as ChatMessage[];
+  };
+
+  // Initialize chat with system message and any existing messages
+  const {
+    messages,
+    input,
+    handleInputChange,
+    handleSubmit,
+    isLoading,
+    error,
+    setMessages,
+  } = useChat({
+    api: "/api/chat",
+    id: currentConversationId || undefined,
+    initialMessages: conversation?.messages
+      ? convertToUIChatMessages(conversation.messages)
+      : [],
+    body: {
+      userDescription: getUserSelfDescription(),
+    },
+    onResponse: () => {
+      // No logging needed
+    },
+    onFinish: () => {
+      // Save conversation to localStorage after each message with minimal logging
+      setTimeout(() => {
+        if (conversation && currentConversationId) {
+          // Get the latest messages
+          const chatMessages = convertToChatMessages(messages);
+
+          // Create updated conversation
+          const updatedConversation = {
+            ...conversation,
+            messages: chatMessages,
+            updatedAt: Date.now(),
+          };
+
+          // Use the context method to save
+          updateConversation(updatedConversation);
+        }
+      }, 500);
+    },
+    onError: (error) => {
+      console.error("Chat API error:", error);
+    },
+  });
+
+  // Load initial messages from conversation if available
+  useEffect(() => {
+    if (
+      conversation?.messages &&
+      conversation.messages.length > 0 &&
+      messages.length === 0
+    ) {
+      setMessages(convertToUIChatMessages(conversation.messages));
+    }
+  }, [conversation, setMessages, messages.length]);
+
+  // Update conversation when messages change - with debounce and minimal logging
+  const messageUpdateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    // Only save if we have a conversation and messages
+    if (conversation && currentConversationId && messages.length > 0) {
+      // Clear any existing timeout
+      if (messageUpdateTimeoutRef.current) {
+        clearTimeout(messageUpdateTimeoutRef.current);
+      }
+
+      // Debounce the update to avoid excessive saves
+      messageUpdateTimeoutRef.current = setTimeout(() => {
+        const chatMessages = convertToChatMessages(messages);
+
+        // Create updated conversation with a new timestamp to force update
+        const updatedConversation = {
+          ...conversation,
+          messages: chatMessages,
+          updatedAt: Date.now(),
+        };
+
+        // Save to context and localStorage
+        updateConversation(updatedConversation);
+      }, 500);
+    }
+
+    // Cleanup timeout on unmount
+    return () => {
+      if (messageUpdateTimeoutRef.current) {
+        clearTimeout(messageUpdateTimeoutRef.current);
+      }
+    };
+  }, [messages, conversation, currentConversationId, updateConversation]);
 
   // Detect if user is on mobile
   useEffect(() => {
@@ -91,7 +224,7 @@ export default function ChatInterface() {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
       }
     }
-  }, [messages, isLoading]);
+  }, [messages]);
 
   // Custom submit handler with keyboard dismissal
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {

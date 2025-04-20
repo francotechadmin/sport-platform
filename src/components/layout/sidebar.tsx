@@ -2,11 +2,13 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "next-themes";
 import Image from "next/image";
-import { LogOut, Bell, MessageSquare } from "@deemlol/next-icons";
+import { LogOut, Bell, MessageSquare, Plus } from "@deemlol/next-icons";
+import { formatRelativeTime } from "@/lib/chat-storage";
+import { useConversation } from "@/lib/conversation-context";
 
 interface SidebarProps {
   title?: string;
@@ -14,6 +16,7 @@ interface SidebarProps {
 
 export function Sidebar({ title = "ProFormAi" }: SidebarProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const prevScrollPos = useRef(0);
@@ -67,14 +70,30 @@ export function Sidebar({ title = "ProFormAi" }: SidebarProps) {
     return pathname.startsWith(path);
   };
 
-  // Mock conversation history
-  const conversations = [
-    { id: 1, title: "Running Training Plan", date: "2 hours ago" },
-    { id: 2, title: "Swimming Technique Tips", date: "Yesterday" },
-    { id: 3, title: "Nutrition Advice", date: "3 days ago" },
-    { id: 4, title: "Recovery Strategies", date: "1 week ago" },
-    { id: 5, title: "Race Day Preparation", date: "2 weeks ago" },
-  ];
+  // Use the conversation context with debug logging
+  const {
+    conversations: chatHistory,
+    createConversation,
+    loadConversation,
+    currentConversationId,
+    refreshConversations,
+  } = useConversation();
+
+  // Force refresh conversations when sidebar is shown
+  useEffect(() => {
+    console.log(
+      "Sidebar mounted or mobile state changed, refreshing conversations"
+    );
+    refreshConversations();
+  }, [refreshConversations, isMobileOpen]);
+
+  // Create a new conversation and navigate to it
+  const handleNewConversation = () => {
+    createConversation();
+
+    // Close mobile sidebar if open
+    setIsMobileOpen(false);
+  };
 
   return (
     <>
@@ -415,39 +434,55 @@ export function Sidebar({ title = "ProFormAi" }: SidebarProps) {
             <div className="mt-6">
               <div className="flex items-center justify-between px-2 py-2">
                 <h2 className="text-sm font-medium">Recent Chats</h2>
-                <Button variant="ghost" size="sm">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="h-4 w-4"
-                  >
-                    <line x1="12" y1="5" x2="12" y2="19"></line>
-                    <line x1="5" y1="12" x2="19" y2="12"></line>
-                  </svg>
-                  <span className="ml-1 text-xs">New</span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleNewConversation}
+                >
+                  <Plus className="h-4 w-4 mr-1" />
+                  <span className="text-xs">New</span>
                 </Button>
               </div>
               <ul className="space-y-1">
-                {conversations.map((convo) => (
-                  <li key={convo.id}>
-                    <Link
-                      href={`/chat?id=${convo.id}`}
-                      className="flex flex-col rounded-lg p-2 text-sm hover:bg-muted/70 transition-colors duration-200"
-                    >
-                      <span className="font-medium">{convo.title}</span>
-                      <span className="text-xs text-muted-foreground">
-                        {convo.date}
-                      </span>
-                    </Link>
+                {chatHistory.length > 0 ? (
+                  chatHistory.map((convo) => (
+                    <li key={convo.id}>
+                      <a
+                        href={`/chat?id=${convo.id}`}
+                        className={`flex flex-col rounded-lg p-2 text-sm hover:bg-muted/70 transition-colors duration-200 ${
+                          currentConversationId === convo.id
+                            ? "bg-muted/70"
+                            : ""
+                        }`}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          console.log(
+                            "Sidebar: Loading conversation:",
+                            convo.id
+                          );
+
+                          // Force a delay to ensure state is updated properly
+                          setTimeout(() => {
+                            loadConversation(convo.id);
+                            setIsMobileOpen(false);
+
+                            // Force navigation to ensure the page reloads with the new conversation
+                            router.push(`/chat?id=${convo.id}`);
+                          }, 50);
+                        }}
+                      >
+                        <span className="font-medium">{convo.title}</span>
+                        <span className="text-xs text-muted-foreground">
+                          {formatRelativeTime(convo.updatedAt)}
+                        </span>
+                      </a>
+                    </li>
+                  ))
+                ) : (
+                  <li className="px-2 py-3 text-sm text-muted-foreground">
+                    No conversations yet. Start a new chat!
                   </li>
-                ))}
+                )}
               </ul>
             </div>
           )}

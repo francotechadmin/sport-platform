@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -17,8 +17,13 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  setUserSelfDescription,
+  setOnboardingComplete,
+} from "@/lib/chat-storage";
 
-type OnboardingStep = "intro" | "subscription";
+type OnboardingStep = "intro" | "subscription" | "user-prompt";
 
 interface OnboardingModalProps {
   onComplete: () => void;
@@ -28,16 +33,37 @@ export const OnboardingModal = ({ onComplete }: OnboardingModalProps) => {
   const [open, setOpen] = useState(true);
   const [step, setStep] = useState<OnboardingStep>("intro");
   const [identityTag, setIdentityTag] = useState<string | null>(null);
+  const [userDescription, setUserDescription] = useState("");
+  const [isDescriptionValid, setIsDescriptionValid] = useState(false);
+
+  // Validate user description when it changes
+  useEffect(() => {
+    setIsDescriptionValid(userDescription.trim().length >= 20);
+  }, [userDescription]);
 
   const handleClose = () => {
-    setOpen(false);
-    onComplete();
+    // Only mark onboarding as complete if user has completed all steps
+    if (step === "user-prompt" && isDescriptionValid) {
+      // Save user description to localStorage
+      setUserSelfDescription(userDescription);
+      setOnboardingComplete(true);
+      setOpen(false);
+      onComplete();
+    } else if (step !== "user-prompt") {
+      setOpen(false);
+      onComplete();
+    }
   };
 
   const handleNext = () => {
     if (step === "intro") {
       setStep("subscription");
-    } else {
+    } else if (step === "subscription") {
+      setStep("user-prompt");
+    } else if (step === "user-prompt" && isDescriptionValid) {
+      // Save user description to localStorage
+      setUserSelfDescription(userDescription);
+      setOnboardingComplete(true);
       handleClose();
     }
   };
@@ -117,7 +143,7 @@ export const OnboardingModal = ({ onComplete }: OnboardingModalProps) => {
               </Button>
             </DialogFooter>
           </>
-        ) : (
+        ) : step === "subscription" ? (
           <>
             <DialogHeader className="space-y-2">
               <DialogTitle className="text-xl sm:text-2xl">
@@ -183,7 +209,59 @@ export const OnboardingModal = ({ onComplete }: OnboardingModalProps) => {
             </div>
             <DialogFooter className="mt-6">
               <Button onClick={handleNext} className="w-full sm:w-auto">
-                Get Started
+                Next
+              </Button>
+            </DialogFooter>
+          </>
+        ) : (
+          <>
+            <DialogHeader className="space-y-2">
+              <DialogTitle className="text-xl sm:text-2xl">
+                Tell Us About Yourself
+              </DialogTitle>
+              <DialogDescription className="text-sm sm:text-base">
+                This information helps your AI coach provide personalized
+                guidance
+              </DialogDescription>
+            </DialogHeader>
+            <div className="mt-4 space-y-4">
+              <div className="space-y-2">
+                <h3 className="font-medium text-foreground">
+                  Describe yourself as an athlete:
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  Include your sport, experience level, goals, strengths,
+                  weaknesses, and any specific areas you want to improve. This
+                  information will be used by your AI coach in future
+                  conversations.
+                </p>
+                <Textarea
+                  value={userDescription}
+                  onChange={(e) => setUserDescription(e.target.value)}
+                  placeholder="I'm a marathon runner with 3 years of experience. My goal is to qualify for Boston. My strengths are endurance and consistency, but I struggle with speed work and recovery. I'm looking to improve my race strategy and mental toughness during the final miles..."
+                  className="min-h-[150px]"
+                />
+                <p className="text-xs text-muted-foreground">
+                  {userDescription.trim().length < 20 ? (
+                    <span className="text-red-500">
+                      Please provide at least 20 characters
+                    </span>
+                  ) : (
+                    <span className="text-green-500">
+                      Great! This will help your coach provide personalized
+                      guidance
+                    </span>
+                  )}
+                </p>
+              </div>
+            </div>
+            <DialogFooter className="mt-6">
+              <Button
+                onClick={handleNext}
+                className="w-full sm:w-auto"
+                disabled={!isDescriptionValid}
+              >
+                Complete Setup
               </Button>
             </DialogFooter>
           </>

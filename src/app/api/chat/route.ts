@@ -10,9 +10,12 @@ export const runtime = "edge";
 export async function POST(req: Request) {
   try {
     console.log("API route called - processing request");
-    const { messages } = await req.json();
+    const { messages, userDescription } = await req.json();
 
-    console.log("Request payload:", { messageCount: messages?.length });
+    console.log("Request payload:", {
+      messageCount: messages?.length,
+      hasUserDescription: !!userDescription,
+    });
 
     // Validate required fields
     if (!messages || !Array.isArray(messages)) {
@@ -26,10 +29,17 @@ export async function POST(req: Request) {
       );
     }
 
+    // Create system prompt with user description if available
+    let systemPrompt =
+      "You are a fitness coach who provides personalized guidance and mental health support. You are friendly, supportive, and always encouraging. You provide detailed explanations and actionable advice.";
+
+    if (userDescription) {
+      systemPrompt += `\n\nThe user has provided the following information about themselves, which you should use to personalize your responses:\n${userDescription}`;
+    }
+
     const result = streamText({
       model: openai(process.env.OPEN_AI_MODEL || "gpt-4o"), // Default to gpt-4o if not specified
-      system:
-        "You are a fitness coach who provides personalized guidance and mental health support. You are friendly, supportive, and always encouraging. You provide detailed explanations and actionable advice.",
+      system: systemPrompt,
       messages,
     });
 

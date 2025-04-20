@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import {
   Card,
   CardContent,
@@ -9,6 +9,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { OnboardingModal } from "@/components/ui/onboarding-modal";
+import { isOnboardingComplete } from "@/lib/chat-storage";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -177,11 +178,6 @@ export default function DashboardPage() {
   // Get visible messages (non-system) for display
   const visibleMessages = messages.filter((msg) => msg.role !== "system");
 
-  const handleOnboardingComplete = () => {
-    localStorage.setItem("hasCompletedOnboarding", "true");
-    setShowOnboarding(false);
-  };
-
   // Custom form submit handler
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -203,14 +199,22 @@ export default function DashboardPage() {
       ? visibleMessages.slice(-3)
       : [defaultWelcomeMessage];
 
-  // check onboarding
+  // Check if onboarding is complete using our utility function
   useEffect(() => {
-    const hasCompletedOnboarding = localStorage.getItem(
-      "hasCompletedOnboarding"
-    );
-    if (!hasCompletedOnboarding) {
-      setShowOnboarding(true);
-    }
+    const checkOnboarding = () => {
+      const completed = isOnboardingComplete();
+      if (!completed) {
+        setShowOnboarding(true);
+      }
+    };
+
+    // Check onboarding status when component mounts
+    checkOnboarding();
+  }, []);
+
+  // Handle onboarding completion
+  const handleOnboardingComplete = useCallback(() => {
+    setShowOnboarding(false);
   }, []);
 
   return (

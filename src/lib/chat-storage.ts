@@ -14,7 +14,8 @@ export interface ChatMessage {
       | "file"
       | "step_start";
     text?: string;
-    [key: string]: any;
+    // Use a more specific type instead of any
+    [key: string]: string | number | boolean | object | undefined;
   }>;
 }
 
@@ -150,7 +151,7 @@ export const saveConversation = (conversation: ChatConversation): void => {
   }
 };
 
-// Get all conversations from localStorage - minimal logging
+// Get all conversations from localStorage
 export const getConversations = (): ChatConversation[] => {
   const localStorage = getLocalStorage();
   if (!localStorage) {

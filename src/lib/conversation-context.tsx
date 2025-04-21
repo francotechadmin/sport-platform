@@ -8,7 +8,7 @@ import React, {
   useCallback,
   useRef,
 } from "react";
-import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import {
   ChatConversation,
   createNewConversation,
@@ -47,8 +47,6 @@ export const useConversation = () => useContext(ConversationContext);
 export const ConversationProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const router = useRouter();
-  const pathname = usePathname();
   const searchParams = useSearchParams();
   const [conversations, setConversations] = useState<ChatConversation[]>([]);
   const [currentConversation, setCurrentConversation] =
@@ -57,24 +55,25 @@ export const ConversationProvider: React.FC<{ children: React.ReactNode }> = ({
     string | null
   >(searchParams.get("id"));
 
-  // Debounce function to prevent excessive refreshes
-  const debounce = (func: Function, wait: number) => {
-    let timeout: NodeJS.Timeout | null = null;
-    return (...args: any[]) => {
-      if (timeout) clearTimeout(timeout);
-      timeout = setTimeout(() => func(...args), wait);
-    };
-  };
-
   // Custom event for localStorage changes - with debounce and minimal logging
-  const createStorageChangeEvent = debounce((key: string) => {
-    // Create a custom event that works within the same tab
-    const event = new CustomEvent("local-storage-change", {
-      detail: { key },
-    });
-    window.dispatchEvent(event);
-    // No logging here
-  }, 300);
+  const createStorageChangeEvent = useCallback((key: string) => {
+    // Simple debounce implementation
+    const debouncedDispatch = (() => {
+      let timeout: NodeJS.Timeout | null = null;
+      return (key: string) => {
+        if (timeout) clearTimeout(timeout);
+        timeout = setTimeout(() => {
+          // Create a custom event that works within the same tab
+          const event = new CustomEvent("local-storage-change", {
+            detail: { key },
+          });
+          window.dispatchEvent(event);
+        }, 300);
+      };
+    })();
+
+    debouncedDispatch(key);
+  }, []);
 
   // Load all conversations from localStorage - with refresh tracking and minimal logging
   const refreshingRef = useRef(false);
@@ -98,73 +97,124 @@ export const ConversationProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, []);
 
+  // Track if we're currently creating a conversation to prevent loops
+  const isCreatingConversationRef = useRef(false);
+
   // Create a new conversation - avoid circular dependency and minimal logging
   const createConversation = useCallback(() => {
-    const newConversation = createNewConversation();
-
-    // Save to localStorage
-    saveConversation(newConversation);
-
-    // Update state
-    setCurrentConversation(newConversation);
-    setCurrentConversationId(newConversation.id);
-
-    // Update URL
-    router.replace(`${pathname}?id=${newConversation.id}`);
-
-    // Dispatch custom event
-    if (typeof window !== "undefined") {
-      createStorageChangeEvent("chat_history");
+    // Prevent multiple simultaneous calls
+    if (isCreatingConversationRef.current) {
+      console.log("Already creating a conversation, skipping");
+      return null;
     }
 
-    // Manually update conversations array to avoid waiting for refresh
-    setConversations((prev) => [newConversation, ...prev.slice(0, 19)]);
+    isCreatingConversationRef.current = true;
+    console.log("Creating new conversation");
 
-    return newConversation;
-  }, [router, pathname]);
+    try {
+      const newConversation = createNewConversation();
+
+      // Save to localStorage
+      saveConversation(newConversation);
+
+      // Update state
+      setCurrentConversation(newConversation);
+      setCurrentConversationId(newConversation.id);
+
+      // Update URL without triggering navigation events
+      const newUrl = new URL(window.location.href);
+      newUrl.searchParams.set("id", newConversation.id);
+      window.history.replaceState({}, "", newUrl.toString());
+
+      // Dispatch custom event
+      if (typeof window !== "undefined") {
+        createStorageChangeEvent("chat_history");
+      }
+
+      // Manually update conversations array to avoid waiting for refresh
+      setConversations((prev) => [newConversation, ...prev.slice(0, 19)]);
+
+      return newConversation;
+    } finally {
+      // Reset the flag after a delay to prevent immediate re-triggering
+      setTimeout(() => {
+        isCreatingConversationRef.current = false;
+      }, 500);
+    }
+  }, [createStorageChangeEvent]);
+
+  // Track if we're currently loading a conversation to prevent loops
+  const isLoadingConversationRef = useRef(false);
 
   // Load a specific conversation by ID - with improved debugging
   const loadConversation = useCallback(
     (id?: string) => {
-      // Use provided ID or get from URL
-      const conversationId = id || searchParams.get("id");
-      console.log("loadConversation called with ID:", conversationId);
-
-      // If no ID, create a new conversation
-      if (!conversationId) {
-        console.log("No conversation ID provided, creating new conversation");
-        createConversation();
+      // Prevent multiple simultaneous calls
+      if (isLoadingConversationRef.current) {
+        console.log("Already loading a conversation, skipping");
         return;
       }
 
-      // Try to load the conversation
-      const loadedConversation = getConversationById(conversationId);
-      console.log(
-        "Loaded conversation:",
-        loadedConversation ? "Found" : "Not found"
-      );
+      isLoadingConversationRef.current = true;
 
-      if (loadedConversation) {
-        console.log("Setting current conversation to:", loadedConversation.id);
+      try {
+        // Use provided ID or get from URL
+        const conversationId = id || searchParams.get("id");
+        console.log("loadConversation called with ID:", conversationId);
 
-        // Force a state update with the loaded conversation
-        setCurrentConversation(null); // Clear first to force re-render
-        setTimeout(() => {
+        // If current conversation is already the requested one, do nothing
+        if (conversationId && conversationId === currentConversationId) {
+          console.log("Conversation already loaded, skipping");
+          return;
+        }
+
+        // If no ID, create a new conversation
+        if (!conversationId) {
+          console.log("No conversation ID provided, creating new conversation");
+          if (!isCreatingConversationRef.current) {
+            createConversation();
+          }
+          return;
+        }
+
+        // Try to load the conversation
+        const loadedConversation = getConversationById(conversationId);
+        console.log(
+          "Loaded conversation:",
+          loadedConversation ? "Found" : "Not found"
+        );
+
+        if (loadedConversation) {
+          console.log(
+            "Setting current conversation to:",
+            loadedConversation.id
+          );
+
+          // Update state directly without the two-step process
           setCurrentConversation(loadedConversation);
           setCurrentConversationId(conversationId);
 
-          // Update URL if needed
+          // Update URL if needed, using history API to avoid navigation events
           if (id && !searchParams.get("id")) {
-            router.replace(`${pathname}?id=${conversationId}`);
+            const newUrl = new URL(window.location.href);
+            newUrl.searchParams.set("id", conversationId);
+            window.history.replaceState({}, "", newUrl.toString());
           }
-        }, 50);
-      } else {
-        // If conversation not found, create a new one
-        console.log("Conversation not found, creating new one");
-        createConversation();
+        } else {
+          // If conversation not found, create a new one
+          console.log("Conversation not found, creating new one");
+          if (!isCreatingConversationRef.current) {
+            createConversation();
+          }
+        }
+      } finally {
+        // Reset the flag after a delay to prevent immediate re-triggering
+        setTimeout(() => {
+          isLoadingConversationRef.current = false;
+        }, 500);
       }
     },
-    [searchParams, router, pathname, createConversation]
+    [searchParams, currentConversationId, createConversation]
   );
 
   // Update an existing conversation - minimal logging
@@ -211,7 +261,7 @@ export const ConversationProvider: React.FC<{ children: React.ReactNode }> = ({
         return [conversationCopy, ...prev.slice(0, 19)];
       });
     },
-    [currentConversationId]
+    [currentConversationId, createStorageChangeEvent]
   );
 
   // Initialize - load conversations on mount - minimal logging
@@ -252,11 +302,18 @@ export const ConversationProvider: React.FC<{ children: React.ReactNode }> = ({
     };
   }, [refreshConversations]);
 
-  // Load conversation when ID changes in URL - minimal logging
+  // Load conversation when ID changes in URL - with guards to prevent loops
   useEffect(() => {
+    // Skip if we're already loading or creating a conversation
+    if (isLoadingConversationRef.current || isCreatingConversationRef.current) {
+      return;
+    }
+
     const urlId = searchParams.get("id");
 
+    // Only load if the URL ID is different from the current one and not null
     if (urlId && urlId !== currentConversationId) {
+      console.log("URL ID changed, loading conversation:", urlId);
       loadConversation(urlId);
     }
   }, [searchParams, currentConversationId, loadConversation]);

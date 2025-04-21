@@ -44,38 +44,8 @@ export default function ChatInterface() {
     refreshConversations,
   } = useConversation();
 
-  // Ensure we have a conversation - only run once, minimal logging
-  const initializedRef = useRef(false);
-
-  useEffect(() => {
-    // Skip if already initialized
-    if (initializedRef.current) return;
-    initializedRef.current = true;
-
-    // If we don't have a conversation, create one
-    if (!conversation && !currentConversationId) {
-      // Create a new conversation directly
-      const newConversation = {
-        id: crypto.randomUUID(),
-        title: "New Conversation",
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        messages: [],
-      };
-
-      // Save it directly to localStorage
-      try {
-        localStorage.setItem("chat_history", JSON.stringify([newConversation]));
-
-        // Force a single refresh
-        setTimeout(() => {
-          refreshConversations();
-        }, 300);
-      } catch (error) {
-        console.error("Error saving new conversation directly:", error);
-      }
-    }
-  }, [conversation, currentConversationId, refreshConversations]);
+  // Track if we've created a conversation to prevent duplicates
+  const hasCreatedConversationRef = useRef(false);
 
   // Convert ChatMessage[] to Message[] for useChat
   const convertToUIChatMessages = (chatMessages: ChatMessage[]): Message[] => {
@@ -232,6 +202,58 @@ export default function ChatInterface() {
 
     // Blur the input to dismiss keyboard on mobile
     inputRef.current?.blur();
+
+    // If no conversation exists and we haven't already created one, create one before submitting
+    if (
+      (!conversation || !currentConversationId) &&
+      !hasCreatedConversationRef.current
+    ) {
+      console.log(
+        "No conversation exists, creating one before submitting message"
+      );
+
+      // Mark that we're creating a conversation to prevent duplicates
+      hasCreatedConversationRef.current = true;
+
+      // Create a new conversation directly
+      const newConversation = {
+        id: crypto.randomUUID(),
+        title: "New Conversation",
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        messages: [],
+      };
+
+      // Save it to localStorage without overwriting existing conversations
+      try {
+        // Get existing conversations first
+        const existingData = localStorage.getItem("chat_history");
+        const conversations = existingData ? JSON.parse(existingData) : [];
+
+        // Add the new conversation to the beginning
+        conversations.unshift(newConversation);
+
+        // Save back to localStorage
+        localStorage.setItem("chat_history", JSON.stringify(conversations));
+        console.log(
+          "Created new conversation for message:",
+          newConversation.id
+        );
+
+        // Update URL to include the new conversation ID
+        const newUrl = new URL(window.location.href);
+        newUrl.searchParams.set("id", newConversation.id);
+        window.history.replaceState({}, "", newUrl.toString());
+
+        // Force a refresh to load the new conversation
+        refreshConversations();
+
+        // Wait a moment for the conversation to be loaded
+        await new Promise((resolve) => setTimeout(resolve, 100));
+      } catch (error) {
+        console.error("Error creating new conversation for message:", error);
+      }
+    }
 
     try {
       await handleSubmit(e);

@@ -3,6 +3,7 @@
 import React, { ReactNode, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../context/auth-context';
+import { Spinner } from '@/components/ui/spinner';
 
 interface AuthRedirectProps {
   children: ReactNode;
@@ -16,7 +17,7 @@ interface AuthRedirectProps {
  */
 export function AuthRedirect({ 
   children, 
-  fallback = <div>Loading...</div>,
+  fallback = <Spinner fullScreen text="Checking authentication..." />,
   redirectTo = '/dashboard'
 }: AuthRedirectProps) {
   const { isAuthenticated, isLoading } = useAuth();
@@ -34,9 +35,9 @@ export function AuthRedirect({
     return <>{fallback}</>;
   }
 
-  // If authenticated, show fallback while redirect is happening
+  // If authenticated, show minimal loading during redirect to avoid flash
   if (isAuthenticated) {
-    return <>{fallback}</>;
+    return <div className="min-h-screen" />; // Empty div to prevent layout shift
   }
 
   // User is not authenticated, render the auth content

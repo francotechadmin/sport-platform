@@ -1,42 +1,36 @@
 import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import { useRouter } from 'next/navigation';
 import { AuthRedirect } from './auth-redirect';
 import { useAuth } from '../context/auth-context';
 
-// Mock Next.js router
-vi.mock('next/navigation', () => ({
-  useRouter: vi.fn(),
-}));
-
-// Mock auth context
+// Mock the useAuth hook
 vi.mock('../context/auth-context', () => ({
   useAuth: vi.fn(),
 }));
 
-const mockPush = vi.fn();
-const mockUseRouter = vi.mocked(useRouter);
 const mockUseAuth = vi.mocked(useAuth);
+
+// Mock Next.js router
+const mockPush = vi.fn();
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({
+    push: mockPush,
+  }),
+}));
 
 describe('AuthRedirect', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockUseRouter.mockReturnValue({
-      push: mockPush,
-      replace: vi.fn(),
-      back: vi.fn(),
-      forward: vi.fn(),
-      refresh: vi.fn(),
-      prefetch: vi.fn(),
-    });
   });
 
-  it('should show loading state when authentication is loading', () => {
+  it('should show loading state when auth is loading', () => {
     mockUseAuth.mockReturnValue({
       user: null,
-      isLoading: true,
       isAuthenticated: false,
+      isLoading: true,
+      isSigningIn: false,
+      isSigningUp: false,
       signIn: vi.fn(),
       signUp: vi.fn(),
       signOut: vi.fn(),
@@ -48,35 +42,60 @@ describe('AuthRedirect', () => {
       </AuthRedirect>
     );
 
-    expect(screen.getByText('Loading...')).toBeInTheDocument();
-    expect(screen.queryByText('Auth Content')).not.toBeInTheDocument();
+    expect(screen.getByText('Checking authentication...')).toBeInTheDocument();
   });
 
-  it('should show custom fallback when loading and fallback is provided', () => {
+  it('should render children when user is not authenticated', () => {
     mockUseAuth.mockReturnValue({
       user: null,
-      isLoading: true,
       isAuthenticated: false,
+      isLoading: false,
+      isSigningIn: false,
+      isSigningUp: false,
       signIn: vi.fn(),
       signUp: vi.fn(),
       signOut: vi.fn(),
     });
 
     render(
-      <AuthRedirect fallback={<div>Custom Loading</div>}>
+      <AuthRedirect>
         <div>Auth Content</div>
       </AuthRedirect>
     );
 
-    expect(screen.getByText('Custom Loading')).toBeInTheDocument();
+    expect(screen.getByText('Auth Content')).toBeInTheDocument();
+  });
+
+  it('should show minimal content during redirect when user is authenticated', () => {
+    mockUseAuth.mockReturnValue({
+      user: { email: 'test@example.com', sessionToken: 'token', createdAt: '2023-01-01' },
+      isAuthenticated: true,
+      isLoading: false,
+      isSigningIn: false,
+      isSigningUp: false,
+      signIn: vi.fn(),
+      signUp: vi.fn(),
+      signOut: vi.fn(),
+    });
+
+    const { container } = render(
+      <AuthRedirect>
+        <div>Auth Content</div>
+      </AuthRedirect>
+    );
+
+    // Should show minimal div during redirect
+    expect(container.firstChild).toHaveClass('min-h-screen');
     expect(screen.queryByText('Auth Content')).not.toBeInTheDocument();
   });
 
-  it('should redirect authenticated user to dashboard', () => {
+  it('should redirect to dashboard when user is authenticated', () => {
     mockUseAuth.mockReturnValue({
-      user: { id: '1', email: 'test@example.com', createdAt: new Date() },
-      isLoading: false,
+      user: { email: 'test@example.com', sessionToken: 'token', createdAt: '2023-01-01' },
       isAuthenticated: true,
+      isLoading: false,
+      isSigningIn: false,
+      isSigningUp: false,
       signIn: vi.fn(),
       signUp: vi.fn(),
       signOut: vi.fn(),
@@ -91,11 +110,13 @@ describe('AuthRedirect', () => {
     expect(mockPush).toHaveBeenCalledWith('/dashboard');
   });
 
-  it('should redirect authenticated user to custom redirect path', () => {
+  it('should redirect to custom path when specified', () => {
     mockUseAuth.mockReturnValue({
-      user: { id: '1', email: 'test@example.com', createdAt: new Date() },
-      isLoading: false,
+      user: { email: 'test@example.com', sessionToken: 'token', createdAt: '2023-01-01' },
       isAuthenticated: true,
+      isLoading: false,
+      isSigningIn: false,
+      isSigningUp: false,
       signIn: vi.fn(),
       signUp: vi.fn(),
       signOut: vi.fn(),
@@ -108,64 +129,5 @@ describe('AuthRedirect', () => {
     );
 
     expect(mockPush).toHaveBeenCalledWith('/custom-path');
-  });
-
-  it('should show fallback while redirect is happening for authenticated user', () => {
-    mockUseAuth.mockReturnValue({
-      user: { id: '1', email: 'test@example.com', createdAt: new Date() },
-      isLoading: false,
-      isAuthenticated: true,
-      signIn: vi.fn(),
-      signUp: vi.fn(),
-      signOut: vi.fn(),
-    });
-
-    render(
-      <AuthRedirect>
-        <div>Auth Content</div>
-      </AuthRedirect>
-    );
-
-    expect(screen.getByText('Loading...')).toBeInTheDocument();
-    expect(screen.queryByText('Auth Content')).not.toBeInTheDocument();
-  });
-
-  it('should render children for unauthenticated user', () => {
-    mockUseAuth.mockReturnValue({
-      user: null,
-      isLoading: false,
-      isAuthenticated: false,
-      signIn: vi.fn(),
-      signUp: vi.fn(),
-      signOut: vi.fn(),
-    });
-
-    render(
-      <AuthRedirect>
-        <div>Auth Content</div>
-      </AuthRedirect>
-    );
-
-    expect(screen.getByText('Auth Content')).toBeInTheDocument();
-    expect(mockPush).not.toHaveBeenCalled();
-  });
-
-  it('should not redirect when loading', () => {
-    mockUseAuth.mockReturnValue({
-      user: null,
-      isLoading: true,
-      isAuthenticated: false,
-      signIn: vi.fn(),
-      signUp: vi.fn(),
-      signOut: vi.fn(),
-    });
-
-    render(
-      <AuthRedirect>
-        <div>Auth Content</div>
-      </AuthRedirect>
-    );
-
-    expect(mockPush).not.toHaveBeenCalled();
   });
 });

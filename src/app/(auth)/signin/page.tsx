@@ -17,6 +17,7 @@ import Link from "next/link";
 import { useAuth } from "@/lib/auth/context/auth-context";
 import { AuthError, getAuthErrorMessage } from "@/lib/auth/errors";
 import { validateSignInForm } from "@/lib/validation";
+import { Spinner } from "@/components/ui/spinner";
 
 export default function SignInPage() {
   const [email, setEmail] = useState("");
@@ -28,7 +29,7 @@ export default function SignInPage() {
   }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { signIn, isLoading } = useAuth();
+  const { signIn, isLoading, isSigningIn } = useAuth();
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -49,6 +50,7 @@ export default function SignInPage() {
       await signIn(email, password);
       router.push("/dashboard");
     } catch (err) {
+      // Context already handles toast notifications, but we still show inline errors
       const errorMessage = getAuthErrorMessage(err as AuthError);
       setError(errorMessage);
     } finally {
@@ -56,7 +58,7 @@ export default function SignInPage() {
     }
   };
 
-  const isFormDisabled = isLoading || isSubmitting;
+  const isFormDisabled = isLoading || isSubmitting || isSigningIn;
 
   return (
     <div className="flex min-h-screen items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
@@ -122,7 +124,14 @@ export default function SignInPage() {
               className="w-full"
               disabled={isFormDisabled}
             >
-              {isSubmitting ? "Signing in..." : "Sign In"}
+              {isSubmitting || isSigningIn ? (
+                <>
+                  <Spinner size="sm" className="mr-2" />
+                  Signing in...
+                </>
+              ) : (
+                "Sign In"
+              )}
             </Button>
             <div className="text-center text-sm text-gray-600">
               Don&apos;t have an account?{" "}

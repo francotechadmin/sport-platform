@@ -3,6 +3,7 @@
 import React, { ReactNode, useEffect, ComponentType } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../context/auth-context';
+import { Spinner } from '@/components/ui/spinner';
 
 interface RouteGuardProps {
   children: ReactNode;
@@ -16,7 +17,7 @@ interface RouteGuardProps {
  */
 export function RouteGuard({ 
   children, 
-  fallback = <div>Loading...</div>,
+  fallback = <Spinner fullScreen text="Checking authentication..." />,
   redirectTo = '/signin'
 }: RouteGuardProps) {
   const { isAuthenticated, isLoading } = useAuth();
@@ -34,9 +35,9 @@ export function RouteGuard({
     return <>{fallback}</>;
   }
 
-  // If not authenticated, show fallback while redirect is happening
+  // If not authenticated, show minimal loading during redirect to avoid flash
   if (!isAuthenticated) {
-    return <>{fallback}</>;
+    return <div className="min-h-screen" />; // Empty div to prevent layout shift
   }
 
   // User is authenticated, render the protected content

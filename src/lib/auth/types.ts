@@ -30,6 +30,8 @@ export interface SessionStorage {
 export interface AuthContextType {
   user: User | null;
   isLoading: boolean;
+  isSigningIn: boolean;
+  isSigningUp: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string) => Promise<void>;
   signOut: () => void;

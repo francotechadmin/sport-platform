@@ -1,8 +1,10 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { toast } from 'sonner';
 import { AuthContextType, User } from '../types';
 import { authService } from '../services/auth.service';
+import { AuthError, getAuthErrorMessage } from '../errors';
 
 // Create the AuthContext
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -16,15 +18,21 @@ interface AuthProviderProps {
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSigningIn, setIsSigningIn] = useState(false);
+  const [isSigningUp, setIsSigningUp] = useState(false);
 
   // Initialize authentication state on mount
   useEffect(() => {
-    const initializeAuth = () => {
+    const initializeAuth = async () => {
       try {
         const currentUser = authService.getCurrentUser();
         setUser(currentUser);
       } catch (error) {
         console.warn('Failed to initialize authentication state:', error);
+        // Show toast for initialization errors that might affect user experience
+        if (error instanceof AuthError) {
+          toast.error(getAuthErrorMessage(error));
+        }
         setUser(null);
       } finally {
         setIsLoading(false);
@@ -36,29 +44,37 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   // Sign up function
   const signUp = async (email: string, password: string): Promise<void> => {
-    setIsLoading(true);
+    setIsSigningUp(true);
     try {
       const newUser = await authService.signUp(email, password);
       setUser(newUser);
+      toast.success('Account created successfully! Welcome to the platform.');
     } catch (error) {
-      // Re-throw the error so components can handle it
+      const errorMessage = getAuthErrorMessage(error as AuthError);
+      toast.error(errorMessage);
+      console.error('Sign up error:', error);
+      // Re-throw the error so components can handle it if needed
       throw error;
     } finally {
-      setIsLoading(false);
+      setIsSigningUp(false);
     }
   };
 
   // Sign in function
   const signIn = async (email: string, password: string): Promise<void> => {
-    setIsLoading(true);
+    setIsSigningIn(true);
     try {
       const authenticatedUser = await authService.signIn(email, password);
       setUser(authenticatedUser);
+      toast.success('Welcome back! You have been signed in successfully.');
     } catch (error) {
-      // Re-throw the error so components can handle it
+      const errorMessage = getAuthErrorMessage(error as AuthError);
+      toast.error(errorMessage);
+      console.error('Sign in error:', error);
+      // Re-throw the error so components can handle it if needed
       throw error;
     } finally {
-      setIsLoading(false);
+      setIsSigningIn(false);
     }
   };
 
@@ -67,8 +83,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       authService.signOut();
       setUser(null);
+      toast.success('You have been signed out successfully.');
     } catch (error) {
       console.warn('Error during sign out:', error);
+      const errorMessage = getAuthErrorMessage(error as AuthError);
+      toast.error(`Sign out error: ${errorMessage}`);
       // Still clear the user state even if storage clearing fails
       setUser(null);
     }
@@ -81,11 +100,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const contextValue: AuthContextType = {
     user,
     isLoading,
+    isSigningIn,
+    isSigningUp,
     signIn,
     signUp,
     signOut,
     isAuthenticated,
   };
+
+  // Don't show a loading screen during initial auth check to avoid flash
+  // The route guards will handle loading states appropriately
 
   return (
     <AuthContext.Provider value={contextValue}>

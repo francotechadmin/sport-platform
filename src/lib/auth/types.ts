@@ -43,6 +43,7 @@ export interface AuthService {
   signOut(): void;
   getCurrentUser(): User | null;
   isValidSession(sessionToken: string): boolean;
+  userExists(email: string): boolean;
 }
 
 export interface CryptoService {

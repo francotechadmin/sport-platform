@@ -17,22 +17,30 @@ import Link from "next/link";
 import { useAuth } from "@/lib/auth/context/auth-context";
 import { AuthError, getAuthErrorMessage } from "@/lib/auth/errors";
 
-export default function SignInPage() {
+export default function SignUpPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const { signIn, isLoading } = useAuth();
+  
+  const { signUp, isLoading } = useAuth();
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+
+    // Validate password matching
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
-      await signIn(email, password);
+      await signUp(email, password);
       router.push("/dashboard");
     } catch (err) {
       const errorMessage = getAuthErrorMessage(err as AuthError);
@@ -48,9 +56,9 @@ export default function SignInPage() {
     <div className="flex min-h-screen items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold">Sign in</CardTitle>
+          <CardTitle className="text-2xl font-bold">Create account</CardTitle>
           <CardDescription>
-            Enter your email and password to access your account
+            Enter your details to create a new account
           </CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
@@ -74,15 +82,7 @@ export default function SignInPage() {
                 />
               </div>
               <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="password">Password</Label>
-                  <Link
-                    href="#"
-                    className="text-sm text-blue-600 hover:text-blue-500"
-                  >
-                    Forgot password?
-                  </Link>
-                </div>
+                <Label htmlFor="password">Password</Label>
                 <Input
                   id="password"
                   type="password"
@@ -92,23 +92,34 @@ export default function SignInPage() {
                   required
                 />
               </div>
+              <div className="space-y-2">
+                <Label htmlFor="confirmPassword">Confirm Password</Label>
+                <Input
+                  id="confirmPassword"
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  disabled={isFormDisabled}
+                  required
+                />
+              </div>
             </div>
           </CardContent>
           <CardFooter className="flex flex-col mt-4 space-y-4">
-            <Button
-              type="submit"
-              className="w-full"
+            <Button 
+              type="submit" 
+              className="w-full" 
               disabled={isFormDisabled}
             >
-              {isSubmitting ? "Signing in..." : "Sign In"}
+              {isSubmitting ? "Creating account..." : "Create Account"}
             </Button>
             <div className="text-center text-sm text-gray-600">
-              Don't have an account?{" "}
+              Already have an account?{" "}
               <Link
-                href="/signup"
+                href="/signin"
                 className="text-blue-600 hover:text-blue-500 font-medium"
               >
-                Sign up
+                Sign in
               </Link>
             </div>
           </CardFooter>

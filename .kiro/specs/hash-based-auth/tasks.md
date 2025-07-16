@@ -55,7 +55,7 @@
   - Test protected route access and redirects
   - _Requirements: 4.1, 4.2, 4.3, 5.1_
 
-- [ ] 8. Implement functional sign-in page
+- [x] 8. Implement functional sign-in page
   - Update existing sign-in page with form state management
   - Add form validation for email and password fields
   - Integrate with AuthContext for authentication
@@ -64,7 +64,7 @@
   - Write component tests for sign-in functionality
   - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 5.2_
 
-- [ ] 9. Create sign-up page component
+- [x] 9. Create sign-up page component
   - Build sign-up page with email, password, and confirm password fields
   - Add form validation including password matching
   - Implement user registration with AuthContext

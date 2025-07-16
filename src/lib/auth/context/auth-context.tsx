@@ -2,7 +2,6 @@
 
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { AuthContextType, User } from '../types';
-import { AuthError } from '../errors';
 import { authService } from '../services/auth.service';
 
 // Create the AuthContext

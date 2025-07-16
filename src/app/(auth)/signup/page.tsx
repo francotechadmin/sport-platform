@@ -13,15 +13,22 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { PasswordStrength } from "@/components/ui/password-strength";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth/context/auth-context";
 import { AuthError, getAuthErrorMessage } from "@/lib/auth/errors";
+import { validateSignUpForm } from "@/lib/validation";
 
 export default function SignUpPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<{
+    email?: string;
+    password?: string;
+    confirmPassword?: string;
+  }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   const { signUp, isLoading } = useAuth();
@@ -30,10 +37,12 @@ export default function SignUpPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setFieldErrors({});
 
-    // Validate password matching
-    if (password !== confirmPassword) {
-      setError("Passwords do not match");
+    // Validate form fields
+    const validation = validateSignUpForm(email, password, confirmPassword);
+    if (!validation.isValid) {
+      setFieldErrors(validation.errors);
       return;
     }
 
@@ -79,7 +88,11 @@ export default function SignUpPage() {
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={isFormDisabled}
                   required
+                  className={fieldErrors.email ? "border-red-500" : ""}
                 />
+                {fieldErrors.email && (
+                  <p className="text-sm text-red-600">{fieldErrors.email}</p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
@@ -90,7 +103,12 @@ export default function SignUpPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   disabled={isFormDisabled}
                   required
+                  className={fieldErrors.password ? "border-red-500" : ""}
                 />
+                {fieldErrors.password && (
+                  <p className="text-sm text-red-600">{fieldErrors.password}</p>
+                )}
+                <PasswordStrength password={password} />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="confirmPassword">Confirm Password</Label>
@@ -101,7 +119,11 @@ export default function SignUpPage() {
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   disabled={isFormDisabled}
                   required
+                  className={fieldErrors.confirmPassword ? "border-red-500" : ""}
                 />
+                {fieldErrors.confirmPassword && (
+                  <p className="text-sm text-red-600">{fieldErrors.confirmPassword}</p>
+                )}
               </div>
             </div>
           </CardContent>

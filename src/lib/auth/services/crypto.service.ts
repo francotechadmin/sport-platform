@@ -94,7 +94,7 @@ export class CryptoServiceImpl implements CryptoService {
       // Compare the hashes using constant-time comparison
       const newHash = new Uint8Array(hashBuffer);
       return this.constantTimeEqual(newHash, storedHash);
-    } catch (error) {
+    } catch {
       // If any error occurs during comparison, return false
       return false;
     }

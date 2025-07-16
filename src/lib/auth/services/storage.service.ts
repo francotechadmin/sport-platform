@@ -59,7 +59,7 @@ export class StorageServiceImpl implements StorageService {
         sessionToken: session.sessionToken,
         createdAt: session.createdAt
       };
-    } catch (error) {
+    } catch {
       // Invalid session data, clear it
       this.clearSession();
       return null;
@@ -84,7 +84,7 @@ export class StorageServiceImpl implements StorageService {
 
     try {
       return JSON.parse(usersData);
-    } catch (error) {
+    } catch {
       // Invalid data, return empty object
       return {};
     }

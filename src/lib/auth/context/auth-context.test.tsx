@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, act, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { AuthProvider, useAuth, AuthContext } from './auth-context';
+import { AuthProvider, useAuth } from './auth-context';
 import { authService } from '../services/auth.service';
 import { AuthError, AuthErrorType } from '../errors';
 import { User } from '../types';

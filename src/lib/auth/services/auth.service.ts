@@ -131,7 +131,7 @@ export class AuthServiceImpl implements AuthService {
     try {
       const currentUser = this.getCurrentUser();
       return currentUser !== null && currentUser.sessionToken === sessionToken;
-    } catch (error) {
+    } catch {
       return false;
     }
   }
@@ -142,7 +142,7 @@ export class AuthServiceImpl implements AuthService {
   userExists(email: string): boolean {
     try {
       return storageService.userExists(email);
-    } catch (error) {
+    } catch {
       return false;
     }
   }

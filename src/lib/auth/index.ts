@@ -16,3 +16,4 @@ export { AuthProvider, useAuth } from './context/auth-context';
 
 // Components
 export { RouteGuard, withRouteGuard } from './components/route-guard';
+export { AuthRedirect } from './components/auth-redirect';

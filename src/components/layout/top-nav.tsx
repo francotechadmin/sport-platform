@@ -1,13 +1,23 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Bell, MessageSquare, User } from "@deemlol/next-icons";
+import { Bell, MessageSquare, User, LogOut } from "@deemlol/next-icons";
 import { ModeToggle } from "@/components/theme-toggle";
+import { useAuth } from "@/lib/auth/context/auth-context";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export function TopNav() {
   const [isVisible, setIsVisible] = useState(true);
   const prevScrollPos = useRef(0);
+  const { user, signOut } = useAuth();
 
   useEffect(() => {
     const mainElement = document.querySelector("main");
@@ -25,6 +35,10 @@ export function TopNav() {
     return () => mainElement.removeEventListener("scroll", handleScroll);
   }, []);
 
+  const handleSignOut = () => {
+    signOut();
+  };
+
   return (
     <div
       style={{ transform: isVisible ? "translateY(0)" : "translateY(-100%)" }}
@@ -34,7 +48,9 @@ export function TopNav() {
         <div className="flex items-center">
           <span className="text-sm text-muted-foreground">
             Welcome back,{" "}
-            <span className="font-medium text-foreground">Champion</span>
+            <span className="font-medium text-foreground">
+              {user?.email || "Champion"}
+            </span>
           </span>
         </div>
         <div className="flex items-center gap-2">
@@ -51,9 +67,21 @@ export function TopNav() {
               2
             </span>
           </Button>
-          <Button variant="ghost" size="icon">
-            <User className="h-5 w-5" />
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon">
+                <User className="h-5 w-5" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleSignOut}>
+                <LogOut className="mr-2 h-4 w-4" />
+                <span>Sign out</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
     </div>

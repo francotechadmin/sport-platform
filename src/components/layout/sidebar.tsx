@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,7 @@ import Image from "next/image";
 import { LogOut, Bell, MessageSquare, Plus } from "@deemlol/next-icons";
 import { formatRelativeTime } from "@/lib/chat-storage";
 import { useConversation } from "@/lib/conversation-context";
+import { useAuth } from "@/lib/auth/context/auth-context";
 
 interface SidebarProps {
   title?: string;
@@ -79,6 +80,9 @@ export function Sidebar({ title = "ProFormAi" }: SidebarProps) {
     refreshConversations,
   } = useConversation();
 
+  // Use auth context for sign out functionality
+  const { signOut, user } = useAuth();
+
   // Force refresh conversations when sidebar is shown
   useEffect(() => {
     console.log(
@@ -93,6 +97,15 @@ export function Sidebar({ title = "ProFormAi" }: SidebarProps) {
 
     // Close mobile sidebar if open
     setIsMobileOpen(false);
+  };
+
+  // Handle sign out
+  const handleSignOut = () => {
+    signOut();
+    // Close mobile sidebar if open
+    setIsMobileOpen(false);
+    // Navigate to signin page
+    router.push('/signin');
   };
 
   return (
@@ -489,15 +502,19 @@ export function Sidebar({ title = "ProFormAi" }: SidebarProps) {
         </nav>
 
         <div className="p-4 border-t border-slate-200/10 dark:border-slate-700/30 flex flex-col gap-2">
+          {user && (
+            <div className="mb-2 px-2">
+              <p className="text-xs text-muted-foreground">Signed in as</p>
+              <p className="text-sm font-medium truncate">{user.email}</p>
+            </div>
+          )}
           <Button
             variant="outline"
-            asChild
+            onClick={handleSignOut}
             className="w-full text-sm flex items-center gap-2 border-slate-200/10 dark:border-slate-700/30"
           >
-            <Link href="/signin" className="flex items-center gap-2">
-              Sign Out
-              <LogOut className="h-4 w-4" />
-            </Link>
+            Sign Out
+            <LogOut className="h-4 w-4" />
           </Button>
         </div>
       </div>

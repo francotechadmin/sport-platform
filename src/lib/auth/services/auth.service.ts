@@ -190,6 +190,118 @@ export class AuthServiceImpl implements AuthService {
   }
 
   /**
+   * Change password for the current user
+   */
+  async changePassword(currentPassword: string, newPassword: string): Promise<void> {
+    try {
+      // Check if localStorage is available
+      if (!this.isStorageAvailable()) {
+        throw new AuthError(AuthErrorType.STORAGE_ERROR, 'Browser storage is not available. Please enable cookies and try again.');
+      }
+
+      // Get current user
+      const currentUser = this.getCurrentUser();
+      if (!currentUser) {
+        throw new AuthError(AuthErrorType.SESSION_EXPIRED, 'Please sign in again to change your password.');
+      }
+
+      // Get stored user data
+      const storedUser = storageService.getUser(currentUser.email);
+      if (!storedUser) {
+        throw new AuthError(AuthErrorType.SESSION_EXPIRED, 'User not found. Please sign in again.');
+      }
+
+      // Verify current password
+      const isCurrentPasswordValid = await cryptoService.comparePasswords(currentPassword, storedUser.hashedPassword);
+      if (!isCurrentPasswordValid) {
+        throw new AuthError(AuthErrorType.INVALID_CREDENTIALS, 'Current password is incorrect.');
+      }
+
+      // Validate new password strength
+      if (!this.isValidPassword(newPassword)) {
+        throw new AuthError(AuthErrorType.WEAK_PASSWORD, 'New password must be at least 8 characters long');
+      }
+
+      // Hash the new password
+      const hashedNewPassword = await cryptoService.hashPassword(newPassword);
+
+      // Update the stored user with new password
+      storageService.storeUser(currentUser.email, hashedNewPassword);
+
+      // Generate new session token for security
+      const newSessionToken = cryptoService.generateSessionToken();
+      const updatedUser: User = {
+        ...currentUser,
+        sessionToken: newSessionToken
+      };
+
+      // Store the new session
+      storageService.storeSession(updatedUser);
+
+    } catch (error) {
+      if (error instanceof AuthError) {
+        throw error;
+      }
+      
+      // Handle storage errors
+      if (error instanceof Error && (
+        error.message.includes('localStorage') || 
+        error.message.includes('QuotaExceededError') ||
+        error.name === 'QuotaExceededError'
+      )) {
+        throw new AuthError(AuthErrorType.STORAGE_ERROR, 'Unable to save password changes. Please try again.');
+      }
+      
+      // Handle crypto errors
+      if (error instanceof Error && error.message.includes('crypto')) {
+        throw new AuthError(AuthErrorType.CRYPTO_ERROR, 'Security operation failed. Please try again.');
+      }
+      
+      // Generic error fallback
+      console.error('Unexpected error during password change:', error);
+      throw new AuthError(AuthErrorType.STORAGE_ERROR, 'An unexpected error occurred. Please try again.');
+    }
+  }
+
+  /**
+   * Delete the current user's account
+   */
+  async deleteAccount(): Promise<void> {
+    try {
+      // Check if localStorage is available
+      if (!this.isStorageAvailable()) {
+        throw new AuthError(AuthErrorType.STORAGE_ERROR, 'Browser storage is not available. Please enable cookies and try again.');
+      }
+
+      // Get current user
+      const currentUser = this.getCurrentUser();
+      if (!currentUser) {
+        throw new AuthError(AuthErrorType.SESSION_EXPIRED, 'Please sign in again to delete your account.');
+      }
+
+      // Delete user data
+      storageService.deleteUser(currentUser.email);
+
+      // Clear session
+      storageService.clearSession();
+
+    } catch (error) {
+      if (error instanceof AuthError) {
+        throw error;
+      }
+      
+      // Handle storage errors
+      if (error instanceof Error && error.message.includes('localStorage')) {
+        throw new AuthError(AuthErrorType.STORAGE_ERROR, 'Unable to delete account. Please try again.');
+      }
+      
+      // Generic error fallback
+      console.error('Unexpected error during account deletion:', error);
+      throw new AuthError(AuthErrorType.STORAGE_ERROR, 'An unexpected error occurred. Please try again.');
+    }
+  }
+
+  /**
    * Validate email format using regex
    */
   private isValidEmail(email: string): boolean {

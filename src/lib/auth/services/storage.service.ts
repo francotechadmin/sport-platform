@@ -99,6 +99,22 @@ export class StorageServiceImpl implements StorageService {
     return email in users;
   }
 
+  deleteUser(email: string): void {
+    try {
+      const users = this.getAllUsers();
+      delete users[email];
+      localStorage.setItem(this.USERS_KEY, JSON.stringify(users));
+    } catch (error) {
+      if (error instanceof Error && (
+        error.name === 'QuotaExceededError' || 
+        error.message.includes('QuotaExceededError')
+      )) {
+        throw new Error('localStorage quota exceeded');
+      }
+      throw new Error('localStorage not available');
+    }
+  }
+
   private getAllUsers(): UsersStorage {
     try {
       const usersData = localStorage.getItem(this.USERS_KEY);

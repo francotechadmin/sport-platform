@@ -34,6 +34,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import { validatePassword } from "@/lib/validation";
+import { authService } from "@/lib/auth/services/auth.service";
+import { AuthError, getAuthErrorMessage } from "@/lib/auth/errors";
 
 export default function SettingsPage() {
   const [emailNotifications, setEmailNotifications] = useState(true);
@@ -111,9 +113,7 @@ export default function SettingsPage() {
     setIsChangingPassword(true);
 
     try {
-      // TODO: Implement actual password change logic with auth service
-      // For now, simulate the API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await authService.changePassword(currentPassword, newPassword);
       
       toast.success("Password changed successfully! Please sign in again with your new password.");
       setIsChangePasswordOpen(false);
@@ -127,7 +127,9 @@ export default function SettingsPage() {
         router.push('/signin');
       }, 1500);
     } catch (error) {
-      toast.error("Failed to change password. Please try again.");
+      const errorMessage = getAuthErrorMessage(error as AuthError);
+      toast.error(errorMessage);
+      console.error('Change password error:', error);
     } finally {
       setIsChangingPassword(false);
     }
@@ -163,6 +165,7 @@ export default function SettingsPage() {
       
       toast.success("Profile updated successfully!");
     } catch (error) {
+      console.error(error)
       toast.error("Failed to update profile. Please try again.");
     } finally {
       setIsUpdatingProfile(false);
@@ -217,6 +220,7 @@ export default function SettingsPage() {
       
       toast.success("Data exported successfully!");
     } catch (error) {
+      console.error(error)
       toast.error("Failed to export data. Please try again.");
     }
   };
@@ -230,15 +234,15 @@ export default function SettingsPage() {
     setIsDeletingAccount(true);
 
     try {
-      // TODO: Implement actual account deletion logic
-      // For now, simulate the API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await authService.deleteAccount();
       
       toast.success("Account deleted successfully");
       signOut();
       router.push('/signin');
     } catch (error) {
-      toast.error("Failed to delete account. Please try again.");
+      const errorMessage = getAuthErrorMessage(error as AuthError);
+      toast.error(errorMessage);
+      console.error('Delete account error:', error);
     } finally {
       setIsDeletingAccount(false);
     }

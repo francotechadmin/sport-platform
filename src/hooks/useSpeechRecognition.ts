@@ -16,11 +16,11 @@ interface SpeechRecognition extends EventTarget {
   start(): void;
   stop(): void;
   abort(): void;
-  onstart: ((this: SpeechRecognition, ev: Event) => any) | null;
-  onend: ((this: SpeechRecognition, ev: Event) => any) | null;
-  onerror: ((this: SpeechRecognition, ev: SpeechRecognitionErrorEvent) => any) | null;
-  onresult: ((this: SpeechRecognition, ev: SpeechRecognitionEvent) => any) | null;
-  onnomatch: ((this: SpeechRecognition, ev: SpeechRecognitionEvent) => any) | null;
+  onstart: ((this: SpeechRecognition, ev: Event) => void) | null;
+  onend: ((this: SpeechRecognition, ev: Event) => void) | null;
+  onerror: ((this: SpeechRecognition, ev: SpeechRecognitionErrorEvent) => void) | null;
+  onresult: ((this: SpeechRecognition, ev: SpeechRecognitionEvent) => void) | null;
+  onnomatch: ((this: SpeechRecognition, ev: SpeechRecognitionEvent) => void) | null;
 }
 
 interface SpeechRecognitionErrorEvent extends Event {
@@ -51,7 +51,7 @@ interface SpeechRecognitionAlternative {
   readonly confidence: number;
 }
 
-declare var SpeechRecognition: {
+declare const SpeechRecognition: {
   prototype: SpeechRecognition;
   new(): SpeechRecognition;
 };
@@ -129,7 +129,7 @@ const getSpeechRecognitionErrorMessage = (error: string): string => {
 export const useSpeechRecognition = (
   config: Partial<SpeechRecognitionConfig> = {}
 ): SpeechRecognitionState & SpeechRecognitionActions => {
-  const finalConfig = { ...defaultConfig, ...config };
+  const finalConfig = useMemo(() => ({ ...defaultConfig, ...config }), [config]);
   
   const [state, setState] = useState<SpeechRecognitionState>(() => {
     const supportCheck = checkSpeechRecognitionSupport();
@@ -152,7 +152,7 @@ export const useSpeechRecognition = (
   const createSpeechRecognition = useCallback((): SpeechRecognition | null => {
     if (!state.isSupported) return null;
 
-    const SpeechRecognition = 
+    const SpeechRecognition =
       (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     
     if (!SpeechRecognition) return null;
@@ -189,7 +189,7 @@ export const useSpeechRecognition = (
       }
     };
 
-    recognition.onerror = (event: any) => {
+    recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
       const errorMessage = getSpeechRecognitionErrorMessage(event.error);
       setState(prev => ({
         ...prev,
@@ -204,7 +204,7 @@ export const useSpeechRecognition = (
       }
     };
 
-    recognition.onresult = (event: any) => {
+    recognition.onresult = (event: SpeechRecognitionEvent) => {
       let interimTranscript = '';
       let finalTranscript = '';
       let confidence = 0;
@@ -281,7 +281,7 @@ export const useSpeechRecognition = (
         }
       }, finalConfig.timeout);
       
-    } catch (error) {
+    } catch (error: unknown) {
       setState(prev => ({
         ...prev,
         error: 'Failed to start speech recognition. Please try again.',
@@ -297,7 +297,7 @@ export const useSpeechRecognition = (
     
     try {
       recognitionRef.current.stop();
-    } catch (error) {
+    } catch (error: unknown) {
       // Ignore errors when stopping
     }
 
@@ -326,7 +326,7 @@ export const useSpeechRecognition = (
       if (recognitionRef.current) {
         try {
           recognitionRef.current.stop();
-        } catch (error) {
+        } catch (error: unknown) {
           // Ignore cleanup errors
         }
       }

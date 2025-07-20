@@ -49,7 +49,6 @@ export default function ChatInterface() {
   const {
     isListening,
     isSupported,
-    transcript,
     finalTranscript,
     interimTranscript,
     error: speechError,
@@ -222,7 +221,7 @@ export default function ChatInterface() {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
       }
     }
-  }, [messages]);
+  }, [messages, isLoading]);
 
   // Custom submit handler with keyboard dismissal
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {

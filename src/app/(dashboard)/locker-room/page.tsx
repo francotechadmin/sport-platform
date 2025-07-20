@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -132,18 +133,12 @@ export default function LockerRoomPage() {
             <div className="flex items-start space-x-4 mb-4">
               <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center text-xl font-bold overflow-hidden">
                 {post.athlete.avatar ? (
-                  <img
+                  <Image
                     src={post.athlete.avatar}
                     alt={post.athlete.name}
+                    width={48}
+                    height={48}
                     className="h-full w-full object-fit"
-                    onError={(e) => {
-                      e.currentTarget.src = "";
-                      e.currentTarget.style.display = "none";
-                      if (e.currentTarget.parentElement) {
-                        e.currentTarget.parentElement.textContent =
-                          post.athlete.name.charAt(0);
-                      }
-                    }}
                   />
                 ) : (
                   post.athlete.name.charAt(0)
@@ -205,18 +200,12 @@ export default function LockerRoomPage() {
                   <div className="flex items-center mb-1">
                     <div className="h-6 w-6 rounded-full bg-muted flex items-center justify-center text-xs font-bold mr-2 overflow-hidden">
                       {comment.athlete.avatar ? (
-                        <img
+                        <Image
                           src={comment.athlete.avatar}
                           alt={comment.athlete.name}
+                          width={24}
+                          height={24}
                           className="h-full w-full object-fit"
-                          onError={(e) => {
-                            e.currentTarget.src = "";
-                            e.currentTarget.style.display = "none";
-                            if (e.currentTarget.parentElement) {
-                              e.currentTarget.parentElement.textContent =
-                                comment.athlete.name.charAt(0);
-                            }
-                          }}
                         />
                       ) : (
                         comment.athlete.name.charAt(0)

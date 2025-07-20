@@ -18,7 +18,7 @@ interface AuthRedirectProps {
 export function AuthRedirect({ 
   children, 
   fallback = <Spinner fullScreen text="Checking authentication..." />,
-  redirectTo = '/dashboard'
+  redirectTo = '/chat'
 }: AuthRedirectProps) {
   const { isAuthenticated, isLoading } = useAuth();
   const router = useRouter();

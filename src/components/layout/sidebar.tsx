@@ -10,6 +10,7 @@ import { LogOut, Bell, MessageSquare, Plus } from "@deemlol/next-icons";
 import { formatRelativeTime } from "@/lib/chat-storage";
 import { useConversation } from "@/lib/conversation-context";
 import { useAuth } from "@/lib/auth/context/auth-context";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface SidebarProps {
   title?: string;
@@ -118,7 +119,7 @@ export function Sidebar({ title = "ProFormAi" }: SidebarProps) {
         <div className="flex flex-col">
           <div className="flex items-center justify-between p-4">
             <Link
-              href="/dashboard"
+              href="/chat"
               className="font-bold text-xl flex items-center gap-2"
             >
               {!isDarkTheme ? (
@@ -209,7 +210,7 @@ export function Sidebar({ title = "ProFormAi" }: SidebarProps) {
         {/* Desktop header - hidden on mobile */}
         <div className="p-4 border-slate-200/10 dark:border-slate-700/30 hidden md:block">
           <Link
-            href="/dashboard"
+            href="/chat"
             className="font-bold text-xl flex items-center gap-2"
           >
             {!isDarkTheme ? (
@@ -282,31 +283,7 @@ export function Sidebar({ title = "ProFormAi" }: SidebarProps) {
         </div>
 
         <nav className="flex-1 px-2 py-4 space-y-1 overflow-y-auto">
-          <Link
-            href="/dashboard"
-            className={`flex items-center px-3 py-2 rounded-lg transition-all duration-200 ${
-              isActive("/dashboard")
-                ? "bg-primary/90 text-primary-foreground shadow-sm"
-                : "hover:bg-muted/70"
-            }`}
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5 mr-3"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
-              />
-            </svg>
-            Dashboard
-          </Link>
-
+          {/* Primary Navigation - Chat and Analytics */}
           <Link
             href="/chat"
             className={`flex items-center px-3 py-2 rounded-lg transition-all duration-200 ${
@@ -332,33 +309,6 @@ export function Sidebar({ title = "ProFormAi" }: SidebarProps) {
             Chat
           </Link>
 
-          {/* performance logs */}
-          <Link
-            href="/performance"
-            className={`flex items-center px-3 py-2 rounded-lg transition-all duration-200 ${
-              isActive("/performance")
-                ? "bg-primary/90 text-primary-foreground shadow-sm"
-                : "hover:bg-muted/70"
-            }`}
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5 mr-3"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-              />
-            </svg>
-            Performance Logs
-          </Link>
-
-          {/*  Analytics */}
           <Link
             href="/analytics"
             className={`flex items-center px-3 py-2 rounded-lg transition-all duration-200 ${
@@ -384,31 +334,66 @@ export function Sidebar({ title = "ProFormAi" }: SidebarProps) {
             Analytics
           </Link>
 
-          {/* Locker Room */}
-          <Link
-            href="/locker-room"
-            className={`flex items-center px-3 py-2 rounded-lg transition-all duration-200 ${
-              isActive("/locker-room")
-                ? "bg-primary/90 text-primary-foreground shadow-sm"
-                : "hover:bg-muted/70"
-            }`}
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5 mr-3"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-              />
-            </svg>
-            Locker Room
-          </Link>
+          {/* Disabled Navigation - Performance and Locker Room */}
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div
+                  className="flex items-center px-3 py-2 rounded-lg transition-all duration-200 opacity-50 cursor-not-allowed text-muted-foreground"
+                  onClick={(e) => e.preventDefault()}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5 mr-3"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                    />
+                  </svg>
+                  Performance
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Coming Soon</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div
+                  className="flex items-center px-3 py-2 rounded-lg transition-all duration-200 opacity-50 cursor-not-allowed text-muted-foreground"
+                  onClick={(e) => e.preventDefault()}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5 mr-3"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                    />
+                  </svg>
+                  Locker Room
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Coming Soon</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
 
           {/* Settings */}
           <Link

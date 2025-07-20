@@ -1,11 +1,38 @@
 "use client";
 
+import { useState, useEffect, useCallback } from "react";
 import ChatInterface from "@/components/ui/chat-interface";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { OnboardingModal } from "@/components/ui/onboarding-modal";
+import { isOnboardingComplete } from "@/lib/chat-storage";
 
 export default function ChatPage() {
+  const [showOnboarding, setShowOnboarding] = useState(false);
+
+  // Check if onboarding is complete using our utility function
+  useEffect(() => {
+    const checkOnboarding = () => {
+      const completed = isOnboardingComplete();
+      if (!completed) {
+        setShowOnboarding(true);
+      }
+    };
+
+    // Check onboarding status when component mounts
+    checkOnboarding();
+  }, []);
+
+  // Handle onboarding completion
+  const handleOnboardingComplete = useCallback(() => {
+    setShowOnboarding(false);
+  }, []);
+
   return (
     <div className="mt-16 p-6 bg-gradient-to-br from-background to-background/95">
+      {showOnboarding && (
+        <OnboardingModal onComplete={handleOnboardingComplete} />
+      )}
+
       <div className="flex items-center gap-3 mb-8">
         <svg
           xmlns="http://www.w3.org/2000/svg"

@@ -42,17 +42,15 @@ export const OnboardingModal = ({ onComplete }: OnboardingModalProps) => {
   }, [userDescription]);
 
   const handleClose = () => {
-    // Only mark onboarding as complete if user has completed all steps
+    // Only allow closing if user has completed all steps
     if (step === "user-prompt" && isDescriptionValid) {
       // Save user description to localStorage
       setUserSelfDescription(userDescription);
       setOnboardingComplete(true);
       setOpen(false);
       onComplete();
-    } else if (step !== "user-prompt") {
-      setOpen(false);
-      onComplete();
     }
+    // Don't allow closing in other cases - user must complete onboarding
   };
 
   const handleNext = () => {
@@ -69,8 +67,13 @@ export const OnboardingModal = ({ onComplete }: OnboardingModalProps) => {
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="w-full sm:max-w-md md:max-w-4xl max-h-[90dvh] overflow-y-auto px-3 sm:px-6">
+    <Dialog open={open} onOpenChange={() => {}}>
+      <DialogContent 
+        className="w-full sm:max-w-md md:max-w-4xl max-h-[90dvh] overflow-y-auto px-3 sm:px-6"
+        onEscapeKeyDown={(e) => e.preventDefault()}
+        onPointerDownOutside={(e) => e.preventDefault()}
+        onInteractOutside={(e) => e.preventDefault()}
+      >
         {step === "intro" ? (
           <>
             <DialogHeader className="space-y-2">
@@ -147,69 +150,43 @@ export const OnboardingModal = ({ onComplete }: OnboardingModalProps) => {
           <>
             <DialogHeader className="space-y-2">
               <DialogTitle className="text-xl sm:text-2xl">
-                Subscription Tiers
+                Current Plan
               </DialogTitle>
               <DialogDescription className="text-sm sm:text-base">
-                Choose the plan that fits your training needs
+                You&apos;re starting with our free tier - more plans coming soon!
               </DialogDescription>
             </DialogHeader>
-            <div className="mt-4 grid gap-4 grid-cols-1 md:grid-cols-3">
-              <Card className="border-2 border-muted">
-                <CardHeader>
-                  <CardTitle>Free Tier</CardTitle>
-                  <CardDescription>Basic reflections</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ul className="list-disc list-inside text-sm space-y-1 text-muted-foreground">
-                    <li>Basic training analysis</li>
-                    <li>Limited AI conversations</li>
-                    <li>Performance tracking</li>
-                  </ul>
-                </CardContent>
-              </Card>
-
-              <Card className="border-2 border-accent shadow-md">
+            <div className="mt-4 flex justify-center">
+              <Card className="border-2 border-accent shadow-md max-w-md w-full">
                 <CardHeader>
                   <div className="flex items-center justify-between">
-                    <CardTitle>Pro Tier</CardTitle>
+                    <CardTitle>Free Tier</CardTitle>
                     <span className="bg-accent text-accent-foreground text-xs font-medium px-2 py-1 rounded">
-                      Recommended
+                      Current Plan
                     </span>
                   </div>
                   <CardDescription>
-                    Personalized memory / training logs
+                    Full access to AI coaching and analytics
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <ul className="list-disc list-inside text-sm space-y-1 text-muted-foreground">
-                    <li>All Free features</li>
+                    <li>Unlimited AI coaching conversations</li>
                     <li>Personalized training insights</li>
-                    <li>Long-term progress tracking</li>
-                    <li>Unlimited AI consultations</li>
+                    <li>Performance analytics and tracking</li>
+                    <li>Chat history and conversation memory</li>
                   </ul>
-                </CardContent>
-              </Card>
-
-              <Card className="border-2 border-muted">
-                <CardHeader>
-                  <CardTitle>Legacy Tier</CardTitle>
-                  <CardDescription>
-                    Voice identity preservation + mentor mode
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ul className="list-disc list-inside text-sm space-y-1 text-muted-foreground">
-                    <li>All Pro features</li>
-                    <li>Custom voice interface</li>
-                    <li>Mentor mode with personalized coaching</li>
-                    <li>Advanced analytics and predictions</li>
-                  </ul>
+                  <div className="mt-4 p-3 bg-muted/50 rounded-lg">
+                    <p className="text-xs text-muted-foreground">
+                      <strong>Coming Soon:</strong> Pro and Legacy tiers with advanced features like voice coaching, extended memory, and premium analytics.
+                    </p>
+                  </div>
                 </CardContent>
               </Card>
             </div>
             <DialogFooter className="mt-6">
               <Button onClick={handleNext} className="w-full sm:w-auto">
-                Next
+                Continue
               </Button>
             </DialogFooter>
           </>

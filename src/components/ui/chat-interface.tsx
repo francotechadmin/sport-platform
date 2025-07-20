@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useChat, Message } from "@ai-sdk/react";
 import { ChatMessage, getUserSelfDescription } from "@/lib/chat-storage";
 import { useConversation } from "@/lib/conversation-context";
+import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar } from "@/components/ui/avatar";
@@ -44,6 +45,33 @@ export default function ChatInterface() {
     refreshConversations,
   } = useConversation();
 
+  // Initialize speech recognition with interim results enabled
+  const {
+    isListening,
+    isSupported,
+    transcript,
+    finalTranscript,
+    interimTranscript,
+    error: speechError,
+    startListening,
+    stopListening,
+    resetTranscript,
+  } = useSpeechRecognition({
+    interimResults: true,
+    continuous: true,
+  });
+
+  // Track base input before speech recognition starts
+  const baseInputRef = useRef<string>('');
+  // Track accumulated final speech text across multiple recognition sessions
+  const accumulatedFinalTextRef = useRef<string>('');
+  // Track the last processed final transcript to avoid duplicates
+  const lastFinalTranscriptRef = useRef<string>('');
+  // Track the last speech-generated value to detect manual edits
+  const lastSpeechValueRef = useRef<string>('');
+  // Track if speech updates should be disabled (user is manually editing)
+  const speechUpdatesDisabledRef = useRef<boolean>(false);
+  
   // Track if we've created a conversation to prevent duplicates
   const hasCreatedConversationRef = useRef(false);
 
@@ -427,6 +455,107 @@ export default function ChatInterface() {
     }
   };
 
+  // Handle speech input - accumulate final results and show interim results
+  useEffect(() => {
+    // Don't update if speech updates are disabled (user is manually editing)
+    if (speechUpdatesDisabledRef.current) return;
+    
+    // Only update if we're currently listening or have new final results
+    if (!isListening && !finalTranscript) return;
+    
+    // Accumulate new final results
+    if (finalTranscript && finalTranscript !== lastFinalTranscriptRef.current) {
+      // Check if this is a new final result
+      if (lastFinalTranscriptRef.current && finalTranscript.startsWith(lastFinalTranscriptRef.current)) {
+        // Extract only the new part
+        const newPart = finalTranscript.slice(lastFinalTranscriptRef.current.length).trim();
+        if (newPart) {
+          const needsSpace = accumulatedFinalTextRef.current && 
+            !accumulatedFinalTextRef.current.endsWith(' ') && 
+            !newPart.startsWith(' ');
+          accumulatedFinalTextRef.current += (needsSpace ? ' ' : '') + newPart;
+        }
+      } else {
+        // Completely new final result
+        const needsSpace = accumulatedFinalTextRef.current && 
+          !accumulatedFinalTextRef.current.endsWith(' ') && 
+          !finalTranscript.startsWith(' ');
+        accumulatedFinalTextRef.current += (needsSpace ? ' ' : '') + finalTranscript.trim();
+      }
+      lastFinalTranscriptRef.current = finalTranscript;
+    }
+    
+    // Build display text: base + accumulated final + current interim
+    let displayText = baseInputRef.current;
+    
+    if (accumulatedFinalTextRef.current) {
+      displayText += (displayText ? ' ' : '') + accumulatedFinalTextRef.current;
+    }
+    
+    if (interimTranscript) {
+      displayText += (displayText ? ' ' : '') + interimTranscript;
+    }
+    
+    const finalDisplayText = displayText.trim();
+    lastSpeechValueRef.current = finalDisplayText;
+      
+    handleInputChange({
+      target: { value: finalDisplayText }
+    } as React.ChangeEvent<HTMLTextAreaElement>);
+  }, [finalTranscript, interimTranscript, isListening, handleInputChange]);
+
+  // Custom input change handler that detects manual edits
+  const handleCustomInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const newValue = e.target.value;
+    
+    // If the new value differs from what speech generated, disable speech updates
+    if (newValue !== lastSpeechValueRef.current) {
+      speechUpdatesDisabledRef.current = true;
+      
+      // Clear all speech-related state when user manually edits
+      accumulatedFinalTextRef.current = '';
+      lastFinalTranscriptRef.current = '';
+      lastSpeechValueRef.current = '';
+      
+      // Reset the speech hook's internal state
+      resetTranscript();
+      
+      // If speech recognition is active, stop it
+      if (isListening) {
+        stopListening();
+      }
+    }
+    
+    // Always call the original handler
+    handleInputChange(e);
+  };
+
+  // Handle microphone button click
+  const handleMicrophoneClick = () => {
+    if (!isSupported) {
+      return;
+    }
+
+    if (isListening) {
+      stopListening();
+    } else {
+      // Re-enable speech updates when starting new session
+      speechUpdatesDisabledRef.current = false;
+      
+      // Always start fresh with current input as base
+      baseInputRef.current = input;
+      // Clear accumulated speech state for fresh start
+      accumulatedFinalTextRef.current = '';
+      lastFinalTranscriptRef.current = '';
+      lastSpeechValueRef.current = '';
+      
+      // Reset speech hook state to ensure clean start
+      resetTranscript();
+      
+      startListening();
+    }
+  };
+
   return (
     <div className="flex flex-col h-full w-full overflow-hidden">
       {/* Chat messages */}
@@ -588,6 +717,11 @@ export default function ChatInterface() {
             Error: {error.message || "Something went wrong. Please try again."}
           </div>
         )}
+        {speechError && (
+          <div className="rounded-lg border border-destructive/20 bg-destructive/10 p-4 text-destructive text-sm my-4 mx-auto max-w-[90%]">
+            Voice input error: {speechError}
+          </div>
+        )}
         <div ref={messagesEndRef} />
       </div>
 
@@ -603,7 +737,7 @@ export default function ChatInterface() {
             className="flex-1 min-h-10 resize-none border-border rounded-lg focus-visible:ring-ring focus-visible:border-ring bg-background"
             placeholder="Ask about your training, goals, recovery..."
             value={input}
-            onChange={handleInputChange}
+            onChange={handleCustomInputChange}
             onKeyDown={handleKeyDown}
             autoComplete="true"
             spellCheck="true"
@@ -615,15 +749,28 @@ export default function ChatInterface() {
             rows={1}
           />
           <div className="flex space-x-2">
-            <Button
-              type="button"
-              variant="outline"
-              size="icon"
-              className="rounded-full h-10 w-10 flex-shrink-0 border-border hover:bg-muted"
-            >
-              <Mic className="h-5 w-5" />
-              <span className="sr-only">Voice input</span>
-            </Button>
+            {isSupported && (
+              <Button
+                type="button"
+                variant={isListening ? "default" : "outline"}
+                size="icon"
+                className={`rounded-full h-10 w-10 flex-shrink-0 transition-all duration-200 ${
+                  isListening 
+                    ? 'bg-red-500 hover:bg-red-600 border-red-500 text-white shadow-lg shadow-red-500/25 animate-pulse ring-2 ring-red-300' 
+                    : 'border-border hover:bg-muted'
+                }`}
+                onClick={handleMicrophoneClick}
+                title={isListening ? 'Stop recording' : 'Start voice input'}
+                disabled={isLoading}
+              >
+                <Mic className={`h-5 w-5 transition-all duration-200 ${
+                  isListening ? 'animate-pulse scale-110' : ''
+                }`} />
+                <span className="sr-only">
+                  {isListening ? 'Stop recording' : 'Voice input'}
+                </span>
+              </Button>
+            )}
             <Button
               type="submit"
               disabled={isLoading || !input.trim()}

@@ -10,13 +10,11 @@ interface FeatureCardProps {
 
 export function FeatureCard({ icon: Icon, title, description, highlight = false }: FeatureCardProps) {
   return (
-    <Card className={`transition-all duration-300 hover:shadow-lg active:scale-[0.98] touch-manipulation ${
-      highlight ? 'border-primary/50 bg-primary/5' : ''
-    }`}>
+    <Card className={`transition-all duration-300 hover:shadow-md active:scale-[0.98] touch-manipulation ${highlight ? 'border-muted-foreground/20 bg-muted/10' : ''
+      }`}>
       <CardHeader>
-        <div className={`inline-flex h-12 w-12 items-center justify-center rounded-lg ${
-          highlight ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'
-        }`}>
+        <div className={`inline-flex h-12 w-12 items-center justify-center rounded-lg ${highlight ? 'bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400' : 'bg-muted text-muted-foreground'
+          }`}>
           <Icon className="h-6 w-6" />
         </div>
         <CardTitle className="text-xl">{title}</CardTitle>

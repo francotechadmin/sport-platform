@@ -35,10 +35,10 @@ export function FeaturesSection() {
       <div className="mx-auto max-w-7xl">
         <div className="text-center">
           <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-            Everything you need to succeed
+            Everything you need to <span className="bg-gradient-to-r from-emerald-600 to-blue-600 bg-clip-text text-transparent">succeed</span>
           </h2>
-          <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
-            Discover the powerful features that make ProFormAi the perfect companion for your journey
+          <p className="mx-auto mt-4 max-w-2xl text-lg text-slate-600 dark:text-slate-300">
+            Discover the powerful features that make <span className="text-emerald-600 dark:text-emerald-400 font-semibold">ProFormAi</span> the perfect companion for your journey
           </p>
         </div>
         

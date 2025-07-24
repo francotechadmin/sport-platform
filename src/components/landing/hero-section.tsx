@@ -41,24 +41,24 @@ export function HeroSection({ onGetStarted, onSignIn }: HeroSectionProps) {
       </nav>
 
       {/* Hero Content */}
-      <div className="flex-1 flex flex-col items-center justify-center px-6 text-center lg:px-8">
+      <div className="flex-1 flex flex-col items-center justify-center px-6 text-center lg:px-8 relative z-10">
         <div className="mx-auto max-w-4xl">
           <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-6xl lg:text-7xl">
             Your AI Coach is Always{' '}
-            <span className="bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
               by Your Side
             </span>
           </h1>
 
-          <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-muted-foreground sm:text-xl">
-            Achieve your goals with personalized AI-driven coaching that adapts to your unique needs and progress
+          <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-slate-600 dark:text-slate-300 sm:text-xl">
+            Achieve your goals with <span className="text-emerald-600 dark:text-emerald-400 font-semibold">personalized AI-driven coaching</span> that adapts to your unique needs and progress
           </p>
 
           <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-            <Button size="lg" onClick={onGetStarted} className="w-full sm:w-auto">
+            <Button size="lg" onClick={onGetStarted} className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300">
               Get Started Free
             </Button>
-            <Button variant="outline" size="lg" onClick={onSignIn} className="w-full sm:w-auto">
+            <Button variant="outline" size="lg" onClick={onSignIn} className="w-full sm:w-auto border-purple-300 text-purple-700 hover:bg-purple-50 dark:border-purple-600 dark:text-purple-300 dark:hover:bg-purple-950/50">
               Sign In
             </Button>
           </div>

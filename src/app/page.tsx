@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth/context/auth-context';
 import { HeroSection } from '@/components/landing/hero-section';
 import { FeaturesSection } from '@/components/landing/features-section';
+import { PricingSection } from '@/components/landing/pricing-section';
 import { Spinner } from '@/components/ui/spinner';
 
 export default function Home() {
@@ -37,6 +38,7 @@ export default function Home() {
       <main>
         <HeroSection onGetStarted={handleGetStarted} onSignIn={handleSignIn} />
         <FeaturesSection />
+        <PricingSection onGetStarted={handleGetStarted} />
       </main>
     );
   }

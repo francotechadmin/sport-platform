@@ -21,6 +21,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [isSigningIn, setIsSigningIn] = useState(false);
   const [isSigningUp, setIsSigningUp] = useState(false);
 
+  // Computed property for authentication status
+  const isAuthenticated = user !== null;
+
   // Initialize authentication state on mount
   useEffect(() => {
     const initializeAuth = async () => {
@@ -92,9 +95,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setUser(null);
     }
   };
-
-  // Computed property for authentication status
-  const isAuthenticated = user !== null;
 
   // Context value
   const contextValue: AuthContextType = {

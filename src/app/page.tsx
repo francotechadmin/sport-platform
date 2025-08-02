@@ -8,6 +8,7 @@ import { FeaturesSection } from '@/components/landing/features-section';
 import { PricingSection } from '@/components/landing/pricing-section';
 import { Spinner } from '@/components/ui/spinner';
 
+
 export default function Home() {
   const { isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
@@ -37,6 +38,7 @@ export default function Home() {
     return (
       <main>
         <HeroSection onGetStarted={handleGetStarted} onSignIn={handleSignIn} />
+
         <FeaturesSection />
         <PricingSection onGetStarted={handleGetStarted} />
       </main>

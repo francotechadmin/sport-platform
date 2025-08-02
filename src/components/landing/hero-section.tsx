@@ -2,6 +2,7 @@
 
 import { Button } from '@/components/ui/button';
 import { ModeToggle } from '@/components/theme-toggle';
+import { LandingInstallButton } from '@/components/pwa/landing-install-button';
 import Image from 'next/image';
 import { useTheme } from 'next-themes';
 
@@ -54,13 +55,25 @@ export function HeroSection({ onGetStarted, onSignIn }: HeroSectionProps) {
             Achieve your goals with <span className="text-emerald-600 dark:text-emerald-400 font-semibold">personalized AI-driven coaching</span> that adapts to your unique needs and progress
           </p>
 
-          <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-            <Button size="lg" onClick={onGetStarted} className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300">
-              Get Started Free
-            </Button>
-            <Button variant="outline" size="lg" onClick={onSignIn} className="w-full sm:w-auto border-purple-300 text-purple-700 hover:bg-purple-50 dark:border-purple-600 dark:text-purple-300 dark:hover:bg-purple-950/50">
-              Sign In
-            </Button>
+          <div className="mt-10 flex flex-col items-center justify-center gap-4">
+            {/* Primary action buttons */}
+            <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
+              <Button size="lg" onClick={onGetStarted} className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300">
+                Get Started Free
+              </Button>
+              <Button variant="outline" size="lg" onClick={onSignIn} className="w-full sm:w-auto border-purple-300 text-purple-700 hover:bg-purple-50 dark:border-purple-600 dark:text-purple-300 dark:hover:bg-purple-950/50">
+                Sign In
+              </Button>
+            </div>
+            
+            {/* Install button - always visible below */}
+            <div className="flex justify-center">
+              <LandingInstallButton 
+                variant="outline" 
+                size="lg" 
+                className="w-full sm:w-auto"
+              />
+            </div>
           </div>
         </div>
       </div>

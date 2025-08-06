@@ -37,10 +37,27 @@ export async function POST(req: Request) {
       systemPrompt += `\n\nThe user has provided the following information about themselves, which you should use to personalize your responses:\n${userDescription}`;
     }
 
+    // Check for required environment variables
+    if (!process.env.OPENAI_API_KEY) {
+      console.error("Missing OPENAI_API_KEY environment variable");
+      return new Response(
+        JSON.stringify({ error: "OpenAI API key not configured" }),
+        {
+          status: 500,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    console.log("Creating stream with model:", process.env.OPEN_AI_MODEL || "gpt-4o");
+
     const result = streamText({
       model: openai(process.env.OPEN_AI_MODEL || "gpt-4o"), // Default to gpt-4o if not specified
       system: systemPrompt,
       messages,
+      onError: (error) => {
+        console.error("Streaming error:", error);
+      },
     });
 
     console.log("Stream created, returning response");

@@ -70,7 +70,7 @@ export default function ChatInterface() {
   const lastSpeechValueRef = useRef<string>('');
   // Track if speech updates should be disabled (user is manually editing)
   const speechUpdatesDisabledRef = useRef<boolean>(false);
-  
+
   // Track if we've created a conversation to prevent duplicates
   const hasCreatedConversationRef = useRef(false);
 
@@ -136,6 +136,12 @@ export default function ChatInterface() {
     },
     onError: (error) => {
       console.error("Chat API error:", error);
+      console.error("Error details:", {
+        message: error.message,
+        stack: error.stack,
+        name: error.name,
+        cause: error.cause,
+      });
     },
   });
 
@@ -458,10 +464,10 @@ export default function ChatInterface() {
   useEffect(() => {
     // Don't update if speech updates are disabled (user is manually editing)
     if (speechUpdatesDisabledRef.current) return;
-    
+
     // Only update if we're currently listening or have new final results
     if (!isListening && !finalTranscript) return;
-    
+
     // Accumulate new final results
     if (finalTranscript && finalTranscript !== lastFinalTranscriptRef.current) {
       // Check if this is a new final result
@@ -469,35 +475,35 @@ export default function ChatInterface() {
         // Extract only the new part
         const newPart = finalTranscript.slice(lastFinalTranscriptRef.current.length).trim();
         if (newPart) {
-          const needsSpace = accumulatedFinalTextRef.current && 
-            !accumulatedFinalTextRef.current.endsWith(' ') && 
+          const needsSpace = accumulatedFinalTextRef.current &&
+            !accumulatedFinalTextRef.current.endsWith(' ') &&
             !newPart.startsWith(' ');
           accumulatedFinalTextRef.current += (needsSpace ? ' ' : '') + newPart;
         }
       } else {
         // Completely new final result
-        const needsSpace = accumulatedFinalTextRef.current && 
-          !accumulatedFinalTextRef.current.endsWith(' ') && 
+        const needsSpace = accumulatedFinalTextRef.current &&
+          !accumulatedFinalTextRef.current.endsWith(' ') &&
           !finalTranscript.startsWith(' ');
         accumulatedFinalTextRef.current += (needsSpace ? ' ' : '') + finalTranscript.trim();
       }
       lastFinalTranscriptRef.current = finalTranscript;
     }
-    
+
     // Build display text: base + accumulated final + current interim
     let displayText = baseInputRef.current;
-    
+
     if (accumulatedFinalTextRef.current) {
       displayText += (displayText ? ' ' : '') + accumulatedFinalTextRef.current;
     }
-    
+
     if (interimTranscript) {
       displayText += (displayText ? ' ' : '') + interimTranscript;
     }
-    
+
     const finalDisplayText = displayText.trim();
     lastSpeechValueRef.current = finalDisplayText;
-      
+
     handleInputChange({
       target: { value: finalDisplayText }
     } as React.ChangeEvent<HTMLTextAreaElement>);
@@ -506,25 +512,25 @@ export default function ChatInterface() {
   // Custom input change handler that detects manual edits
   const handleCustomInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newValue = e.target.value;
-    
+
     // If the new value differs from what speech generated, disable speech updates
     if (newValue !== lastSpeechValueRef.current) {
       speechUpdatesDisabledRef.current = true;
-      
+
       // Clear all speech-related state when user manually edits
       accumulatedFinalTextRef.current = '';
       lastFinalTranscriptRef.current = '';
       lastSpeechValueRef.current = '';
-      
+
       // Reset the speech hook's internal state
       resetTranscript();
-      
+
       // If speech recognition is active, stop it
       if (isListening) {
         stopListening();
       }
     }
-    
+
     // Always call the original handler
     handleInputChange(e);
   };
@@ -540,17 +546,17 @@ export default function ChatInterface() {
     } else {
       // Re-enable speech updates when starting new session
       speechUpdatesDisabledRef.current = false;
-      
+
       // Always start fresh with current input as base
       baseInputRef.current = input;
       // Clear accumulated speech state for fresh start
       accumulatedFinalTextRef.current = '';
       lastFinalTranscriptRef.current = '';
       lastSpeechValueRef.current = '';
-      
+
       // Reset speech hook state to ensure clean start
       resetTranscript();
-      
+
       startListening();
     }
   };
@@ -593,17 +599,15 @@ export default function ChatInterface() {
         {messages.map((message) => (
           <div
             key={message.id}
-            className={`flex items-start gap-3 my-4 ${
-              message.role === "user" ? "justify-end" : "justify-start"
-            }`}
+            className={`flex items-start gap-3 my-4 ${message.role === "user" ? "justify-end" : "justify-start"
+              }`}
           >
             <div className="flex flex-col">
               <Card
-                className={`${
-                  message.role === "user"
-                    ? "bg-primary text-primary-foreground border-primary/10 py-0"
-                    : "bg-transparent border-none shadow-none p-0"
-                }`}
+                className={`${message.role === "user"
+                  ? "bg-primary text-primary-foreground border-primary/10 py-0"
+                  : "bg-transparent border-none shadow-none p-0"
+                  }`}
               >
                 <CardContent
                   className={`border-none p-4 inline-block 
@@ -649,9 +653,8 @@ export default function ChatInterface() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className={`h-7 w-7 rounded-full hover:bg-muted ${
-                      feedbackMessages[message.id] === "like" ? "bg-muted" : ""
-                    }`}
+                    className={`h-7 w-7 rounded-full hover:bg-muted ${feedbackMessages[message.id] === "like" ? "bg-muted" : ""
+                      }`}
                     onClick={() => handleFeedback(message.id, "like")}
                     title="Thumbs up"
                   >
@@ -661,11 +664,10 @@ export default function ChatInterface() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className={`h-7 w-7 rounded-full hover:bg-muted ${
-                      feedbackMessages[message.id] === "dislike"
-                        ? "bg-muted"
-                        : ""
-                    }`}
+                    className={`h-7 w-7 rounded-full hover:bg-muted ${feedbackMessages[message.id] === "dislike"
+                      ? "bg-muted"
+                      : ""
+                      }`}
                     onClick={() => handleFeedback(message.id, "dislike")}
                     title="Thumbs down"
                   >
@@ -675,17 +677,17 @@ export default function ChatInterface() {
                   {message.id ===
                     messages.filter((m) => m.role === "assistant").pop()
                       ?.id && (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-7 w-7 rounded-full hover:bg-muted"
-                      onClick={regenerateMessage}
-                      title="Regenerate response"
-                      disabled={isLoading}
-                    >
-                      <RefreshCw className="h-3.5 w-3.5 text-muted-foreground" />
-                    </Button>
-                  )}
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7 rounded-full hover:bg-muted"
+                        onClick={regenerateMessage}
+                        title="Regenerate response"
+                        disabled={isLoading}
+                      >
+                        <RefreshCw className="h-3.5 w-3.5 text-muted-foreground" />
+                      </Button>
+                    )}
                 </div>
               )}
             </div>
@@ -753,18 +755,16 @@ export default function ChatInterface() {
                 type="button"
                 variant={isListening ? "default" : "outline"}
                 size="icon"
-                className={`rounded-full h-10 w-10 flex-shrink-0 transition-all duration-200 ${
-                  isListening 
-                    ? 'bg-red-500 hover:bg-red-600 border-red-500 text-white shadow-lg shadow-red-500/25 animate-pulse ring-2 ring-red-300' 
-                    : 'border-border hover:bg-muted'
-                }`}
+                className={`rounded-full h-10 w-10 flex-shrink-0 transition-all duration-200 ${isListening
+                  ? 'bg-red-500 hover:bg-red-600 border-red-500 text-white shadow-lg shadow-red-500/25 animate-pulse ring-2 ring-red-300'
+                  : 'border-border hover:bg-muted'
+                  }`}
                 onClick={handleMicrophoneClick}
                 title={isListening ? 'Stop recording' : 'Start voice input'}
                 disabled={isLoading}
               >
-                <Mic className={`h-5 w-5 transition-all duration-200 ${
-                  isListening ? 'animate-pulse scale-110' : ''
-                }`} />
+                <Mic className={`h-5 w-5 transition-all duration-200 ${isListening ? 'animate-pulse scale-110' : ''
+                  }`} />
                 <span className="sr-only">
                   {isListening ? 'Stop recording' : 'Voice input'}
                 </span>

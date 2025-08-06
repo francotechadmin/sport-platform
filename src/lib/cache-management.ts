@@ -103,42 +103,7 @@ export class CacheManager {
     }
   }
 
-  /**
-   * Enable development mode (bypass caching)
-   */
-  static enableDevMode(): void {
-    localStorage.setItem('pwa-dev-mode', 'true');
-    console.log('PWA Development mode enabled - caching will be bypassed');
-    
-    // Send message to service worker
-    if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
-      navigator.serviceWorker.controller.postMessage({
-        type: 'ENABLE_DEV_MODE'
-      });
-    }
-  }
 
-  /**
-   * Disable development mode (enable caching)
-   */
-  static disableDevMode(): void {
-    localStorage.removeItem('pwa-dev-mode');
-    console.log('PWA Development mode disabled - caching enabled');
-    
-    // Send message to service worker
-    if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
-      navigator.serviceWorker.controller.postMessage({
-        type: 'DISABLE_DEV_MODE'
-      });
-    }
-  }
-
-  /**
-   * Check if development mode is enabled
-   */
-  static isDevModeEnabled(): boolean {
-    return localStorage.getItem('pwa-dev-mode') === 'true';
-  }
 
   /**
    * Update service worker and clear caches
@@ -186,7 +151,6 @@ if (typeof window !== 'undefined') {
 // Auto-enable dev mode in development environment
 if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
   console.log('🔧 Development mode detected');
-  console.log('💡 Use cacheManager.enableDevMode() to bypass caching');
   console.log('💡 Use cacheManager.clearAllCaches() to clear all caches');
   console.log('💡 Use cacheManager.forceReload() to reload without cache');
   console.log('💡 Use Ctrl+Shift+R to force reload without cache');

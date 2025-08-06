@@ -13,7 +13,6 @@ import { CacheManager, CacheInfo } from '@/lib/cache-management';
  */
 export const CacheControl: React.FC = () => {
   const [cacheInfo, setCacheInfo] = useState<CacheInfo[]>([]);
-  const [isDevMode, setIsDevMode] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const loadCacheInfo = useCallback(async () => {
@@ -23,7 +22,6 @@ export const CacheControl: React.FC = () => {
 
   useEffect(() => {
     if (process.env.NODE_ENV === 'development') {
-      setIsDevMode(CacheManager.isDevModeEnabled());
       loadCacheInfo();
     }
   }, [loadCacheInfo]);
@@ -43,15 +41,7 @@ export const CacheControl: React.FC = () => {
     CacheManager.forceReload();
   };
 
-  const handleToggleDevMode = () => {
-    if (isDevMode) {
-      CacheManager.disableDevMode();
-      setIsDevMode(false);
-    } else {
-      CacheManager.enableDevMode();
-      setIsDevMode(true);
-    }
-  };
+
 
   const handleUpdateServiceWorker = async () => {
     setIsLoading(true);
@@ -69,8 +59,8 @@ export const CacheControl: React.FC = () => {
           <CardTitle className="flex items-center gap-2 text-sm">
             <Settings className="h-4 w-4" />
             Dev Cache Control
-            <Badge variant={isDevMode ? "destructive" : "secondary"} className="text-xs">
-              {isDevMode ? 'Bypass' : 'Active'}
+            <Badge variant="secondary" className="text-xs">
+              Active
             </Badge>
           </CardTitle>
         </CardHeader>
@@ -79,17 +69,10 @@ export const CacheControl: React.FC = () => {
             <div>Caches: {cacheInfo.length}</div>
             <div>Total entries: {totalEntries}</div>
           </div>
-          
+
           <div className="flex flex-col gap-2">
-            <Button
-              size="sm"
-              variant={isDevMode ? "default" : "outline"}
-              onClick={handleToggleDevMode}
-              className="h-8 text-xs"
-            >
-              {isDevMode ? 'Enable Caching' : 'Bypass Cache'}
-            </Button>
-            
+
+
             <Button
               size="sm"
               variant="outline"
@@ -100,7 +83,7 @@ export const CacheControl: React.FC = () => {
               <Trash2 className="h-3 w-3 mr-1" />
               Clear All Caches
             </Button>
-            
+
             <Button
               size="sm"
               variant="outline"
@@ -111,7 +94,7 @@ export const CacheControl: React.FC = () => {
               <RefreshCw className="h-3 w-3 mr-1" />
               Update SW
             </Button>
-            
+
             <Button
               size="sm"
               variant="destructive"
@@ -122,7 +105,7 @@ export const CacheControl: React.FC = () => {
               Force Reload
             </Button>
           </div>
-          
+
           <div className="text-xs text-muted-foreground">
             <div>💡 Ctrl+Shift+R for force reload</div>
             <div>💡 Use console: cacheManager.*</div>

@@ -1,12 +1,9 @@
 // Service Worker for PWA Implementation
-// Version 1.2.0 - Enhanced with development mode and better cache control
+// Version 1.2.0 - Enhanced with better cache control
 
 const CACHE_VERSION = 'v1.2.0';
 // Use build timestamp for production cache busting
 const CACHE_BUILD_ID = self.location.search.slice(1) || 'BUILD_TIMESTAMP_PLACEHOLDER';
-
-// Development mode flag - only enabled in development
-let DEV_MODE = false;
 
 // Production cache update settings
 const PRODUCTION_UPDATE_CONFIG = {
@@ -116,12 +113,6 @@ async function handleFetch(request) {
   const url = new URL(request.url);
 
   try {
-    // DEVELOPMENT MODE: Bypass all caching if dev mode is enabled
-    if (DEV_MODE) {
-      console.log('[SW] Dev mode: bypassing cache for', url.pathname);
-      return await fetch(request);
-    }
-
     // Performance optimization: Skip caching for certain requests
     if (shouldSkipCache(request)) {
       return await fetch(request);
@@ -271,25 +262,38 @@ async function cacheFirstStrategy(request, cacheName) {
 async function networkFirstStrategy(request, cacheName) {
   try {
     const networkResponse = await fetch(request);
-    if (networkResponse.ok) {
+
+    // Always return the network response, even if it's an error (4xx, 5xx)
+    // This allows the app to handle API errors properly
+    if (networkResponse.ok && request.method === 'GET') {
+      // Only cache successful GET requests
       const cache = await caches.open(cacheName);
       const responseClone = networkResponse.clone();
       await cache.put(request, responseClone);
       await limitCacheSize(cacheName, MAX_CACHE_SIZE.api);
     }
+
     return networkResponse;
   } catch (error) {
-    // For non-GET requests that fail, add to background sync queue
+    // Only handle actual network errors (not HTTP errors)
+    console.log('[SW] Network error for API request:', error);
+
+    // For non-GET requests that fail due to network issues, add to background sync queue
     if (request.method !== 'GET') {
       await addToSyncQueue(request);
     }
 
-    // Fallback to cache if network fails
-    const cache = await caches.open(cacheName);
-    const cachedResponse = await cache.match(request);
-    if (cachedResponse) {
-      return cachedResponse;
+    // Fallback to cache if network fails (only for GET requests)
+    if (request.method === 'GET') {
+      const cache = await caches.open(cacheName);
+      const cachedResponse = await cache.match(request);
+      if (cachedResponse) {
+        console.log('[SW] Serving cached API response due to network error');
+        return cachedResponse;
+      }
     }
+
+    // If no cache available, throw the original error
     throw error;
   }
 }
@@ -520,8 +524,9 @@ async function getOfflineFallback(request) {
     }
   }
 
-  // For API requests, return a JSON error response
+  // For API requests, return a JSON error response only for actual network failures
   if (url.pathname.startsWith('/api/')) {
+    console.log('[SW] API request failed due to network error, returning offline response');
     return new Response(
       JSON.stringify({
         error: 'Offline',
@@ -695,11 +700,16 @@ async function addToSyncQueue(request) {
         requestData.headers[key] = value;
       });
 
-      // Serialize body for non-GET requests
+      // Serialize body for non-GET requests - handle body cloning carefully
       if (request.method !== 'GET' && request.method !== 'HEAD') {
         try {
-          const clonedRequest = request.clone();
-          requestData.body = await clonedRequest.text();
+          // Check if request body has already been consumed
+          if (request.bodyUsed) {
+            console.warn('[SW] Request body already used, cannot serialize for sync queue');
+          } else {
+            const clonedRequest = request.clone();
+            requestData.body = await clonedRequest.text();
+          }
         } catch (error) {
           console.warn('[SW] Failed to serialize request body:', error);
         }
@@ -750,17 +760,6 @@ self.addEventListener('message', (event) => {
         });
       });
     });
-  }
-
-  // Handle development mode toggle
-  if (event.data && event.data.type === 'ENABLE_DEV_MODE') {
-    console.log('[SW] Enabling development mode - caching disabled');
-    DEV_MODE = true;
-  }
-
-  if (event.data && event.data.type === 'DISABLE_DEV_MODE') {
-    console.log('[SW] Disabling development mode - caching enabled');
-    DEV_MODE = false;
   }
 
   // Handle cache clearing requests

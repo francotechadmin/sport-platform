@@ -194,11 +194,6 @@ export const PWAManager: React.FC<PWAManagerProps> = ({ children }) => {
   // Register service worker and handle updates
   useEffect(() => {
     if ('serviceWorker' in navigator) {
-      // Enable dev mode automatically in development
-      if (process.env.NODE_ENV === 'development') {
-        CacheManager.enableDevMode();
-      }
-
       navigator.serviceWorker.register('/sw.js')
         .then(registration => {
           console.log('Service Worker registered successfully');
